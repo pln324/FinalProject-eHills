@@ -1,75 +1,66 @@
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Observable;
 
-import javafx.application.Platform;
+import com.google.gson.Gson;
 
-/*
- * Author: Vallath Nandakumar and the EE 422C instructors.
- * Data: April 20, 2020
- * This starter code assumes that you are using an Observer Design Pattern and the appropriate Java library
- * classes.  Also using Message objects instead of Strings for socket communication.
- * See the starter code for the Chat Program on Canvas.  
- * This code does not compile.
- */
-public class Server extends Observable {
+class Server extends Observable {
 
-    static Server server;
+  public static void main(String[] args) {
+    new Server().runServer();
+  }
 
-    public static void main (String [] args) {
-        server = new Server();
-        //server.populateItems();
-        server.SetupNetworking();
+  private void runServer() {
+    try {
+      setUpNetworking();
+    } catch (Exception e) {
+      e.printStackTrace();
+      return;
     }
+  }
 
-    private void SetupNetworking() {
-        int port = 5000;
-        try {
-            ServerSocket ss = new ServerSocket(port);
-            while (true) {
-                Socket clientSocket = ss.accept();
-                ClientObserver writer = new ClientObserver(clientSocket.getOutputStream());
-                Thread t = new Thread(new ClientHandler(clientSocket, writer));
-                t.start();
-                addObserver(writer);
-                System.out.println("got a connection");
-            }
-        } catch (IOException e) {}
+  private void setUpNetworking() throws Exception {
+    @SuppressWarnings("resource")
+    ServerSocket serverSock = new ServerSocket(4242);
+    while (true) {
+      Socket clientSocket = serverSock.accept();
+      System.out.println("Connecting to... " + clientSocket);
+
+      ClientHandler handler = new ClientHandler(this, clientSocket);
+      this.addObserver(handler);
+
+      Thread t = new Thread(handler);
+      t.start();
     }
+  }
 
-    class ClientHandler implements Runnable {
-        private  ObjectInputStream reader;
-        private  ClientObserver writer; // See Canvas. Extends ObjectOutputStream, implements Observer
-        Socket clientSocket;
+  protected void processRequest(String input) {
+    String output = "Error";
+    Gson gson = new Gson();
+    Message message = gson.fromJson(input, Message.class);
+    try {
+      String temp = "";
+      switch (message.type) {
+        case "upper":
+          temp = message.input.toUpperCase();
+          break;
+        case "lower":
+          temp = message.input.toLowerCase();
+          break;
+        case "strip":
+          temp = message.input.replace(" ", "");
+          break;
+      }
+      output = "";
+      for (int i = 0; i < message.number; i++) {
+        output += temp;
+        output += " ";
+      }
+      this.setChanged();
+      this.notifyObservers(output);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
 
-        public ClientHandler(Socket clientSocket, ClientObserver writer) {
-			this.writer = writer;
-			this.clientSocket = clientSocket;
-        }
-
-        public void run() {
-        	try {
-        		// Create data input and output streams
-        		reader = new ObjectInputStream( clientSocket.getInputStream());
-        		ObjectOutputStream outputToClient = new ObjectOutputStream( clientSocket.getOutputStream());
-        		// Continuously serve the client
-        		while (true) { 
-        			// Receive radius from the client 
-        			double radius = reader.readDouble();
-        			// Compute area
-        			double area = radius * radius * Math.PI; 
-        			// Send area back to the client
-        			outputToClient.writeDouble(area);
-        			Platform.runLater(() -> { 
-        			
-        			});
-        		}
-        	} catch(IOException e) {
-        		e.printStackTrace();
-        	}
-        }
-    }// end of class ClientHandler
 }
