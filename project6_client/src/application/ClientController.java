@@ -35,6 +35,7 @@ public class ClientController {
     private BufferedReader fromServer;
     private String customerID;
     private String password;
+    public loginController login;
     
     @FXML
     private Button bidButton;
@@ -56,6 +57,7 @@ public class ClientController {
     public ClientController() {
     	items = new ArrayList<Item>();
     	itemsBox = new ChoiceBox<String>();
+    	login = new loginController();
     	names = new ArrayList<String>();
     	try {
 			setUpNetworking();
@@ -107,12 +109,6 @@ public class ClientController {
     public void quitButtonPressed() {
     	System.exit(0);
     }
-//    public void itemsBoxUsed() {
-//    	Item temp = items.get(itemsBox.getSelectionModel().getSelectedIndex());
-//    	descriptionText.setText(temp.description);
-//    	timeText.setText(Integer.toString(temp.time));
-//    	lowestBidText.setText(Double.toString(temp.minPrice));
-//    }
     
     public void setID(String id, String password) {
     	customerID = id;
@@ -150,8 +146,6 @@ public class ClientController {
         						Item tempy = gson.fromJson(message.input, Item.class);
         						items.get(message.number).minPrice = tempy.minPrice;
         						lowestBidText.setText(Double.toString(tempy.minPrice));
-        						//names.add(tempy.name);
-        						//itemsBox.setItems(FXCollections.observableArrayList(names));
         						break;
         					case "itemArray":
         						Type ItemListType = new TypeToken<ArrayList<Item>>(){}.getType(); 
@@ -163,33 +157,41 @@ public class ClientController {
         						Platform.runLater(()->{
         							itemsBox.setItems(FXCollections.observableArrayList(names));
         						});	
+        						break;
+        					case "validUser":
+        						Customer valid = gson.fromJson(message.input, Customer.class);
+        						customerID = valid.username;
+        						password = valid.password;
+        						Platform.runLater(()->{
+        							login.primaryStage.setTitle("Welcome, " + customerID);
+            						login.primaryStage.setScene(login.primaryScene);
+        						});
+        						break;
+        					case "invalidUser":
+        						//Customer invalid = gson.fromJson(message.input, Customer.class);
+        						
+        						Platform.runLater(()->{
+        							login.loginInvalid();
+        						});
         					}
         					System.out.println("From server: " + input);
         					processRequest(input);
-        					//wait();
         				}
         			} catch (Exception e) {
         				e.printStackTrace();
         		}
         	}
         });
-
-//        Thread writerThread = new Thread(() ->{
-//            while (true) {
-//            	if(changed==true) {
-//            		changed = false;
-//            		//String input = consoleInput.nextLine();
-//            		//String[] variables = input.split(",");
-//            		//Message request = new Message(variables[0], variables[1], Integer.valueOf(variables[2]));
-//            		GsonBuilder builder = new GsonBuilder();
-//            		Gson gson = builder.create();
-//            		sendToServer(gson.toJson(info));
-//            	}
-//            }
-//          });
         readerThread.start();
-        //writerThread.start();
       }
+    
+    public void sendToServer(Customer customer) {
+    	GsonBuilder builder = new GsonBuilder();
+		Gson gson = builder.create();
+		Message message = new Message("user",gson.toJson(customer),1);
+		sendToServer(gson.toJson(message));
+    }
+    
     protected void processRequest(String input) {
         return;
       }
