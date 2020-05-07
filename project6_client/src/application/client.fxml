@@ -36,10 +36,9 @@
                   <TextField fx:id="bidText" prefHeight="26.0" prefWidth="103.0" promptText="how much would you like to bid" GridPane.columnIndex="2" GridPane.rowIndex="4" />
                   <ChoiceBox fx:id="itemsBox" prefWidth="150.0" GridPane.halignment="CENTER" GridPane.rowIndex="3" />
                   <Label text="Which Item would you like to view?" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
+                  <Label text="Description" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                   <Label text="Current Bid" GridPane.columnIndex="1" GridPane.rowIndex="3" />
                   <Label text="Time left" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                  <Label text="Description" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                  <Label fx:id="ItemName" text="Label" GridPane.columnIndex="1" />
                   <TextArea fx:id="descriptionText" editable="false" prefHeight="200.0" prefWidth="200.0" promptText="pick an item" GridPane.columnIndex="2" GridPane.rowIndex="1" />
                   <TextField fx:id="timeText" editable="false" prefHeight="10.0" prefWidth="229.0" promptText="pick an item" GridPane.columnIndex="2" GridPane.rowIndex="2" />
                   <TextField fx:id="lowestBidText" editable="false" promptText="pick an item" GridPane.columnIndex="2" GridPane.rowIndex="3" />

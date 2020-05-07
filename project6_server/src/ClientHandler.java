@@ -39,7 +39,8 @@ class ClientHandler implements Runnable, Observer {
         server.processRequest(input);
       }
     } catch (IOException e) {
-      e.printStackTrace();
+    	e.printStackTrace();
+    	server.deleteObserver(this);   	
     }
   }
 
