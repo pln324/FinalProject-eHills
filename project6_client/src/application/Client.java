@@ -79,10 +79,27 @@ public class Client extends Application{
 	  FXMLLoader fxmlLoader = new FXMLLoader();        
 	  Parent root = fxmlLoader.load(getClass().getResource("client.fxml").openStream());        
 	  controller = fxmlLoader.getController();        
-	  primaryStage.setTitle("Customer");        
-	  primaryStage.setScene(new Scene(root, 700, 600));        
+	  primaryStage.setTitle("Login");
+	 
+	  FXMLLoader loader = new FXMLLoader();
+	  Stage loginStage = new Stage();
+	  Parent loginRoot = loader.load(getClass().getResource("login.fxml").openStream());
+	  ((loginController) loader.getController()).setStage(primaryStage, new Scene(root,700,600), controller);
+	  Scene loginScene = new Scene(loginRoot);
+	  
+	  //primaryStage.setScene(new Scene(root, 700, 600));
+	  primaryStage.setScene(loginScene);
 	  primaryStage.show();
-	  controller.myClient = this;
+	  //controller.myClient = this;
+	  
+//	  FXMLLoader loader = new FXMLLoader();
+//	  Stage loginStage = new Stage();
+//	  Parent loginRoot = loader.load(getClass().getResource("login.fxml").openStream());
+//	  Scene loginScene = new Scene(loginRoot);
+//	  loginStage.setTitle("Log in to EHills");
+//	  loginStage.setScene(loginScene);
+//	  loginStage.show();
+	  
 //	  try {
 //	      new Client().setUpNetworking();
 //	    } catch (Exception e) {

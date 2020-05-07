@@ -3,45 +3,121 @@ package application;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.lang.reflect.Type;
 import java.net.Socket;
+import java.util.ArrayList;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
+import com.sun.xml.internal.ws.org.objectweb.asm.Label;
 
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 
 public class ClientController {
 
 	public boolean changed = false;
-	public Message info;
 	public String fromServ;
 	public Client myClient;
-    @FXML
-    private Button bidButton;
-
-    @FXML
-    private TextField bidText;
+	public ArrayList<Item> items;
+	public ArrayList<String> names;
+	public int boxIndex;
     private PrintWriter toServer;
     private static String host = "127.0.0.1";
     private BufferedReader fromServer;
+    private String customerID;
+    private String password;
+    
+    @FXML
+    private Button bidButton;
+    @FXML
+    private TextField bidText;
+    @FXML
+    private ChoiceBox<String> itemsBox;
+    @FXML
+    private Label customerName;
+    @FXML
+    private TextArea descriptionText;
+    @FXML
+    private TextField timeText;
+    @FXML
+    private TextField lowestBidText;
+    @FXML
+    private Button quitButton;
+    
     public ClientController() {
+    	items = new ArrayList<Item>();
+    	itemsBox = new ChoiceBox<String>();
+    	names = new ArrayList<String>();
     	try {
 			setUpNetworking();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
     }
+    @FXML
+    public void initialize() {
+    	// add a listener 
+        itemsBox.getSelectionModel().selectedIndexProperty().addListener(
+        		new ChangeListener<Number>() { 
+  
+            // if the item of the list is changed 
+            public void changed(ObservableValue ov, Number value, Number new_value) 
+            { 
+            	boxIndex = new_value.intValue();
+            	Item temp = items.get(boxIndex);
+            	descriptionText.setText(temp.description);
+            	timeText.setText(Integer.toString(temp.time));
+            	lowestBidText.setText(Double.toString(temp.minPrice));
+            } 
+        }); 
+    }
     
     public void bidButtonPressed() {
-    	String bid = bidText.getText();
-    	info = new Message("bid",bid,1);
-    	changed = true;
-    	GsonBuilder builder = new GsonBuilder();
-		Gson gson = builder.create();
-		sendToServer(gson.toJson(info));
+    	bidText.setPromptText("How much?");
+		try {
+			double bid = Double.parseDouble(bidText.getText());
+			if(bid>items.get(boxIndex).minPrice) {
+				items.get(boxIndex).minPrice = bid;
+				lowestBidText.setText(bidText.getText());
+				GsonBuilder builder = new GsonBuilder();
+				Gson gson = builder.create();
+				Message info = new Message("bid",gson.toJson(items.get(boxIndex)),boxIndex);
+				changed = true;
+				sendToServer(gson.toJson(info));
+			} else {
+				bidText.clear();
+				bidText.setPromptText("too low!");
+			}
+		}
+		catch(Exception e) {
+			bidText.clear();
+			bidText.setPromptText("not a number!");
+		}
+    }
+    
+    public void quitButtonPressed() {
+    	System.exit(0);
+    }
+//    public void itemsBoxUsed() {
+//    	Item temp = items.get(itemsBox.getSelectionModel().getSelectedIndex());
+//    	descriptionText.setText(temp.description);
+//    	timeText.setText(Integer.toString(temp.time));
+//    	lowestBidText.setText(Double.toString(temp.minPrice));
+//    }
+    
+    public void setID(String id, String password) {
+    	customerID = id;
+    	this.password = password;
+    	
     }
     
     private void setUpNetworking() throws Exception {
@@ -57,7 +133,6 @@ public class ClientController {
         		String input;
         		try {
         			while ((input = fromServer.readLine()) != null) {
-        				String output = "Error";
         				Gson gson = new Gson();
         				Message message = gson.fromJson(input, Message.class);
         					String temp = "";
@@ -71,16 +146,27 @@ public class ClientController {
         					case "strip":
         						temp = message.input.replace(" ", "");
         						break;
-        					}
-        					output = "";
-        					for (int i = 0; i < message.number; i++) {
-        						output += temp;
-        						output += " ";
+        					case "item":
+        						Item tempy = gson.fromJson(message.input, Item.class);
+        						items.get(message.number).minPrice = tempy.minPrice;
+        						lowestBidText.setText(Double.toString(tempy.minPrice));
+        						//names.add(tempy.name);
+        						//itemsBox.setItems(FXCollections.observableArrayList(names));
+        						break;
+        					case "itemArray":
+        						Type ItemListType = new TypeToken<ArrayList<Item>>(){}.getType(); 
+        						items = gson.fromJson(message.input, ItemListType);
+        						names.clear();
+        						for(int i=0; i<items.size(); i++) {
+        							names.add(items.get(i).name);
+        						}
+        						Platform.runLater(()->{
+        							itemsBox.setItems(FXCollections.observableArrayList(names));
+        						});	
         					}
         					System.out.println("From server: " + input);
         					processRequest(input);
-        					fromServ=input;
-        					bidText.setText(fromServ);
+        					//wait();
         				}
         			} catch (Exception e) {
         				e.printStackTrace();
