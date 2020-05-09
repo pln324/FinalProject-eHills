@@ -1,7 +1,6 @@
 package application;
 
 import java.io.BufferedReader;
-
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.lang.reflect.Type;
@@ -22,8 +21,11 @@ import javafx.fxml.FXML;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.control.cell.PropertyValueFactory;
 
 public class ClientController {
 
@@ -40,6 +42,7 @@ public class ClientController {
     private String password;
     public loginController login;
     public Scene loginScene;
+    public ArrayList<Item> bought; 
     
     @FXML
     private Button bidButton;
@@ -61,12 +64,15 @@ public class ClientController {
     private Button quitButton;
     @FXML
     private TextField ownerText;
+    @FXML
+    private TableView<Item> buyTable;
     
     public ClientController() {
     	items = new ArrayList<Item>();
     	itemsBox = new ChoiceBox<String>();
     	login = new loginController();
     	names = new ArrayList<String>();
+    	bought = new ArrayList<Item>();
     	customerID = "";
     	password = "";
     	boxIndex = -1;
@@ -80,6 +86,16 @@ public class ClientController {
     }
     @FXML
     public void initialize() {
+    	TableColumn itemName = new TableColumn("Item");
+        TableColumn description = new TableColumn("Description");
+        TableColumn purchasePrice = new TableColumn("Price");
+        itemName.setCellValueFactory(new PropertyValueFactory<Item,String>("name"));
+        description.setCellValueFactory(new PropertyValueFactory<Item,String>("description"));
+        description.setMinWidth(200);
+        purchasePrice.setCellValueFactory(new PropertyValueFactory<Item,Double>("minPrice"));
+        buyTable.getColumns().clear();
+        buyTable.getColumns().addAll(itemName,description,purchasePrice);
+    	
     	// add a listener 
         itemsBox.getSelectionModel().selectedIndexProperty().addListener(
         		new ChangeListener<Number>() { 
@@ -93,7 +109,8 @@ public class ClientController {
             	timeText.setText(Long.toString(temp.timeRemaining));
             	lowestBidText.setText(Double.toString(temp.minPrice));
             	if(temp.owner.username.equals("")) {
-            		ownerText.setText("Be the first to bid!");
+            		ownerText.clear();
+            		ownerText.setPromptText("Be the first to bid!");
             	}
             	else ownerText.setText(temp.owner.username);
             } 
@@ -215,6 +232,27 @@ public class ClientController {
         						Platform.runLater(()->{
         							login.loginInvalid();
         						});
+        					case "remove":
+        						Item remove = gson.fromJson(message.input, Item.class);
+        						if(remove.owner.username.equals(customerID)) {
+        							bought.add(remove);
+        							Platform.runLater(()->{
+        								buyTable.setItems(FXCollections.observableArrayList(bought));
+        							});
+        						}
+        						if(message.number>items.size()) {
+        							names.remove(message.number-1);
+        							items.remove(message.number-1);
+        						}
+        						else {
+        							names.remove(message.number);
+        							items.remove(message.number);
+        							itemsBox.getItems().remove(message.number);
+        						}
+        						Platform.runLater(()->{
+    								//itemsBox.setItems(FXCollections.observableArrayList(names));
+    							});	
+        						break;
         					}
         					System.out.println("From server: " + input);
         					processRequest(input);
@@ -249,7 +287,8 @@ public class ClientController {
 		
 		@Override
 		public void handle(long now) {
-			if(boxIndex >= 0) {
+			//buyTable.setItems(FXCollections.observableArrayList(bought));
+			if(boxIndex >= 0 && boxIndex < items.size()) {
 				timeText.setText(Long.toString(items.get(boxIndex).timeRemaining));
 				//lowestBidText.setText(Double.toString(items.get(boxIndex).minPrice));
 				//ownerText.setText(items.get(boxIndex).owner.username);

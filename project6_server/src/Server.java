@@ -4,6 +4,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Observable;
 
@@ -21,10 +22,10 @@ class Server extends Observable {
 		users = new HashMap<String,String>();
 		items = new ArrayList<Item>();
 		for(int i=0; i<5; i++) {
-			Item i1 = new Item("item" + Integer.toString(i),"an item",250,180);
+			Item i1 = new Item("item" + Integer.toString(i),"an item",250,75);
 			items.add(i1);
 		}
-		items.add(new Item("me", "its literally me",1,100));
+		items.add(new Item("me", "its literally me",1,50));
 		new Server().runServer();
 	}
 
@@ -48,19 +49,29 @@ class Server extends Observable {
 			ClientHandler handler = new ClientHandler(this, clientSocket);
 			this.addObserver(handler);
 			Thread t = new Thread(handler);
-//			Thread timer = new Thread(()-> {
-//				while (true) {
-//					long elapsedTime = System.currentTimeMillis() - startTime;
-//					long elapsedSeconds = elapsedTime / 1000;
-//					updateTimes(elapsedSeconds);
-//				}
-//			});
+			Thread sold = new Thread(()-> {
+				while (true) {
+					int i=0;
+					for (Iterator<Item> it = items.iterator(); it.hasNext(); i++) {
+					    Item remove = it.next();
+					    if (remove.timeRemaining == 0) { 
+					    	GsonBuilder builder = new GsonBuilder();
+							Gson gson = builder.create();
+							Message message = new Message("remove",gson.toJson(remove),i);
+							this.setChanged();
+							this.notifyObservers(gson.toJson(message));
+					    	it.remove(); 
+					    	break;
+						} 
+					} 
+				}
+			});
 			t.start();
 			addItems();
-//			if(timerStarted == false) {
-//				timerStarted = true;
-//				timer.start();
-//			}
+			if(timerStarted == false) {
+				timerStarted = true;
+				sold.start();
+			}
 		}
 	}
 

@@ -28,6 +28,18 @@ public class Item {
 		timer();
 	}
 	
+	public String getName() {
+		return name;
+	}
+	
+	public String getDescription() {
+		return description;
+	}
+	
+	public Double getMinPrice() {
+		return (minPrice);
+	}
+	
 	public void timer() {
 		Thread timer = new Thread(()-> {
 			while (timeRemaining>0) {
