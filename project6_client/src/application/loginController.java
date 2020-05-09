@@ -26,6 +26,9 @@ public class loginController {
     private Button loginButton;
     @FXML
     private DialogPane dp;
+    @FXML
+    private Button newAccount;
+    
 	public Stage primaryStage;
 	public Scene primaryScene;
 	public ClientController controller;
@@ -58,5 +61,9 @@ public class loginController {
 		Alert a = new Alert(AlertType.NONE,"incorrect password");
         a.setAlertType(AlertType.WARNING); 
         a.show(); 
+	}
+	
+	public void newAccountButtonPressed() {
+		
 	}
 }

@@ -30,6 +30,7 @@
             <Button fx:id="quitButton" mnemonicParsing="false" onAction="#quitButtonPressed" onKeyPressed="#quitButtonPressed" text="Quit" GridPane.columnIndex="2" GridPane.halignment="RIGHT" />
             <Label text="Username" />
             <Label text="Password" GridPane.rowIndex="1" />
+            <Button mnemonicParsing="false" text="Create Account" GridPane.columnIndex="2" GridPane.halignment="RIGHT" GridPane.rowIndex="2" />
          </children>
       </GridPane>
    </content>

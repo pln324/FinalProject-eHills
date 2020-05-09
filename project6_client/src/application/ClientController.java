@@ -19,12 +19,14 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.cell.PropertyValueFactory;
 
 public class ClientController {
@@ -38,8 +40,9 @@ public class ClientController {
     private PrintWriter toServer;
     private static String host = "127.0.0.1";
     private BufferedReader fromServer;
-    private static String customerID;
-    private String password;
+//    private static String customerID;
+//    private String password;
+    private Customer customer;
     public loginController login;
     public Scene loginScene;
     public ArrayList<Item> bought; 
@@ -73,8 +76,7 @@ public class ClientController {
     	login = new loginController();
     	names = new ArrayList<String>();
     	bought = new ArrayList<Item>();
-    	customerID = "";
-    	password = "";
+    	customer = new Customer();
     	boxIndex = -1;
     	AnimationTimer timer = new myTimer();
     	timer.start();
@@ -103,16 +105,27 @@ public class ClientController {
             // if the item of the list is changed 
             public void changed(ObservableValue ov, Number value, Number new_value) 
             { 
-            	boxIndex = new_value.intValue();
-            	Item temp = items.get(boxIndex);
-            	descriptionText.setText(temp.description);
-            	timeText.setText(Long.toString(temp.timeRemaining));
-            	lowestBidText.setText(Double.toString(temp.minPrice));
-            	if(temp.owner.username.equals("")) {
+            	try {
+            		boxIndex = new_value.intValue();
+            		Item temp = items.get(boxIndex);
+            		descriptionText.setText(temp.description);
+            		timeText.setText(Long.toString(temp.timeRemaining));
+            		lowestBidText.setText(Double.toString(temp.minPrice));
+            		if(temp.owner.username.equals("")) {
+            			ownerText.clear();
+            			ownerText.setPromptText("Be the first to bid!");
+            		}
+            		else ownerText.setText(temp.owner.username);
+            	} catch (Exception e) {
+            		descriptionText.clear();
+            		timeText.clear();
+            		lowestBidText.clear();
             		ownerText.clear();
-            		ownerText.setPromptText("Be the first to bid!");
+            		bidText.clear();
+            		Alert a = new Alert(AlertType.NONE,"auction over!");
+                    a.setAlertType(AlertType.WARNING); 
+                    a.show(); 
             	}
-            	else ownerText.setText(temp.owner.username);
             } 
         }); 
     }
@@ -123,9 +136,9 @@ public class ClientController {
 			double bid = Double.parseDouble(bidText.getText());
 			if(bid>items.get(boxIndex).minPrice) {
 				items.get(boxIndex).minPrice = bid;
-				items.get(boxIndex).owner = new Customer(customerID, password);
+				items.get(boxIndex).owner = customer;
 				lowestBidText.setText(bidText.getText());
-				ownerText.setText(customerID);
+				ownerText.setText(customer.username);
 				GsonBuilder builder = new GsonBuilder();
 				Gson gson = builder.create();
 				Message info = new Message("bid",gson.toJson(items.get(boxIndex)),boxIndex);
@@ -149,12 +162,6 @@ public class ClientController {
     
     public void quitButtonPressed() {
     	System.exit(0);
-    }
-    
-    public void setID(String id, String password) {
-    	customerID = id;
-    	this.password = password;
-    	
     }
     
     public boolean initialized = false;
@@ -217,24 +224,24 @@ public class ClientController {
         						break;
         					case "validUser":
         						Customer valid = gson.fromJson(message.input, Customer.class);
-        						if(customerID.equals(valid.username) && password.equals(valid.password)) {
+        						if(customer.username.equals(valid.username) && customer.password.equals(valid.password)) {
         							Platform.runLater(()->{
         								loginScene = login.primaryStage.getScene();
-        								login.primaryStage.setTitle("Welcome, " + customerID);
+        								login.primaryStage.setTitle("Welcome, " + customer.username);
         								login.primaryStage.setScene(login.primaryScene);
         							});
         						}
         						break;
         					case "invalidUser":
         						//Customer invalid = gson.fromJson(message.input, Customer.class);
-        						customerID = "";
-        						password = "";
+//        						customerID = "";
+//        						password = "";
         						Platform.runLater(()->{
         							login.loginInvalid();
         						});
         					case "remove":
         						Item remove = gson.fromJson(message.input, Item.class);
-        						if(remove.owner.username.equals(customerID)) {
+        						if(remove.owner.username.equals(customer.username)) {
         							bought.add(remove);
         							Platform.runLater(()->{
         								buyTable.setItems(FXCollections.observableArrayList(bought));
@@ -247,10 +254,9 @@ public class ClientController {
         						else {
         							names.remove(message.number);
         							items.remove(message.number);
-        							itemsBox.getItems().remove(message.number);
         						}
         						Platform.runLater(()->{
-    								//itemsBox.setItems(FXCollections.observableArrayList(names));
+        							itemsBox.getItems().remove(message.number);
     							});	
         						break;
         					}
@@ -266,8 +272,7 @@ public class ClientController {
       }
     
     public void sendToServer(Customer customer) {
-    	customerID = customer.username;
-    	password = customer.password;
+    	this.customer = customer;
     	GsonBuilder builder = new GsonBuilder();
 		Gson gson = builder.create();
 		Message message = new Message("user",gson.toJson(customer),1);
