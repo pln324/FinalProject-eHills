@@ -140,6 +140,8 @@ public class ClientController {
     	
     }
     
+    public boolean initialized = false;
+    
     private void setUpNetworking() throws Exception {
         @SuppressWarnings("resource")
         Socket socket = new Socket(host, 4242);
@@ -167,24 +169,33 @@ public class ClientController {
         						temp = message.input.replace(" ", "");
         						break;
         					case "item":
+        						if(items.size()>0) {
         						Item tempy = gson.fromJson(message.input, Item.class);
         						items.get(message.number).minPrice = tempy.minPrice;
         						items.get(message.number).owner = tempy.owner;
+        						items.get(message.number).timeRemaining = tempy.timeRemaining;
         						if(message.number == boxIndex) {
-        							lowestBidText.setText(Double.toString(tempy.minPrice));
-        							ownerText.setText(tempy.owner.username);
+        							Platform.runLater(()->{
+        								lowestBidText.setText(Double.toString(tempy.minPrice));
+        								ownerText.setText(tempy.owner.username);
+        							});
+        							//timeText.setText(Long.toString(tempy.timeRemaining));
+        						}
         						}
         						break;
         					case "itemArray":
-        						Type ItemListType = new TypeToken<ArrayList<Item>>(){}.getType(); 
-        						items = gson.fromJson(message.input, ItemListType);
-        						names.clear();
-        						for(int i=0; i<items.size(); i++) {
-        							names.add(items.get(i).name);
+        						if(initialized == false) {
+        							initialized = true;
+        							Type ItemListType = new TypeToken<ArrayList<Item>>(){}.getType(); 
+        							items = gson.fromJson(message.input, ItemListType);
+        							names.clear();
+        							for(int i=0; i<items.size(); i++) {
+        								names.add(items.get(i).name);
+        							}
+        							Platform.runLater(()->{
+        								itemsBox.setItems(FXCollections.observableArrayList(names));
+        							});	
         						}
-        						Platform.runLater(()->{
-        							itemsBox.setItems(FXCollections.observableArrayList(names));
-        						});	
         						break;
         					case "validUser":
         						Customer valid = gson.fromJson(message.input, Customer.class);
@@ -234,28 +245,13 @@ public class ClientController {
       }
     
     private class myTimer extends AnimationTimer {
-			
-    	private long startTime;
-    	
-    	public myTimer() {
-			startTime = System.currentTimeMillis();
-		}
 		
 		@Override
 		public void handle(long now) {
-			long elapsedTime = System.currentTimeMillis() - startTime;
-			long elapsedSeconds = elapsedTime / 1000;
-			updateTimes(elapsedSeconds);
-			if(boxIndex>=0)
-			timeText.setText(Long.toString(items.get(boxIndex).timeRemaining));
-		}
-		
-		public void updateTimes(long time) {
-			for (int i=0; i<items.size(); i++) {
-				items.get(i).timeRemaining = items.get(i).time - time;
-				if(items.get(i).timeRemaining<=0) {
-					items.get(i).timeRemaining = 0;
-				}
+			if(boxIndex >= 0) {
+				timeText.setText(Long.toString(items.get(boxIndex).timeRemaining));
+				//lowestBidText.setText(Double.toString(items.get(boxIndex).minPrice));
+				//ownerText.setText(items.get(boxIndex).owner.username);
 			}
 		}
     }

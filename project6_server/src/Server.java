@@ -1,4 +1,5 @@
 import java.lang.reflect.Type;
+
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -14,6 +15,7 @@ class Server extends Observable {
 
 	static ArrayList<Item> items;
 	static Map <String,String> users;
+	private static long startTime;
 	
 	public static void main(String[] args) {
 		users = new HashMap<String,String>();
@@ -35,20 +37,47 @@ class Server extends Observable {
 		}
 	}
 
+	private boolean timerStarted = false;
 	private void setUpNetworking() throws Exception {
 		@SuppressWarnings("resource")
 		ServerSocket serverSock = new ServerSocket(4242);
+		startTime = System.currentTimeMillis();
 		while (true) {
 			Socket clientSocket = serverSock.accept();
 			System.out.println("Connecting to... " + clientSocket);
 			ClientHandler handler = new ClientHandler(this, clientSocket);
 			this.addObserver(handler);
 			Thread t = new Thread(handler);
+			Thread timer = new Thread(()-> {
+				while (true) {
+					long elapsedTime = System.currentTimeMillis() - startTime;
+					long elapsedSeconds = elapsedTime / 1000;
+					updateTimes(elapsedSeconds);
+				}
+			});
 			t.start();
 			addItems();
+			if(timerStarted == false) {
+				timerStarted = true;
+				timer.start();
+			}
 		}
 	}
 
+	public void updateTimes(long time) {
+		for (int i=0; i<items.size(); i++) {
+			items.get(i).timeRemaining = items.get(i).time - time;
+			if(items.get(i).timeRemaining<0) {
+				items.get(i).timeRemaining = 0;
+			}
+			GsonBuilder builder = new GsonBuilder();
+			Gson gson = builder.create();
+			Message message = new Message("item",gson.toJson(items.get(i)),i);
+			this.setChanged();
+			this.notifyObservers(gson.toJson(message));
+		}
+	}
+	
 	protected void processRequest(String input) {
 		String output = "Error";
 		Gson gson = new Gson();
@@ -72,6 +101,7 @@ class Server extends Observable {
 				Item tempy = gson.fromJson(message.input, Item.class);
 				items.get(message.number).minPrice = tempy.minPrice;
 				items.get(message.number).owner = tempy.owner;
+				//items.get(message.number).timeRemaining = tempy.timeRemaining;
 				item = new Message("item",gson.toJson(items.get(message.number)),message.number);
 				this.setChanged();
 				this.notifyObservers(gson.toJson(item));
@@ -100,6 +130,10 @@ class Server extends Observable {
 					this.setChanged();
 					this.notifyObservers(gson.toJson(validUser));
 				}
+				break;
+			case "time":
+				items.get(message.number).timeRemaining = gson.fromJson(message.input, Long.class);
+				break;
 			}
 			//addItems();
 		} catch (Exception e) {
