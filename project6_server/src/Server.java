@@ -48,35 +48,35 @@ class Server extends Observable {
 			ClientHandler handler = new ClientHandler(this, clientSocket);
 			this.addObserver(handler);
 			Thread t = new Thread(handler);
-			Thread timer = new Thread(()-> {
-				while (true) {
-					long elapsedTime = System.currentTimeMillis() - startTime;
-					long elapsedSeconds = elapsedTime / 1000;
-					updateTimes(elapsedSeconds);
-				}
-			});
+//			Thread timer = new Thread(()-> {
+//				while (true) {
+//					long elapsedTime = System.currentTimeMillis() - startTime;
+//					long elapsedSeconds = elapsedTime / 1000;
+//					updateTimes(elapsedSeconds);
+//				}
+//			});
 			t.start();
 			addItems();
-			if(timerStarted == false) {
-				timerStarted = true;
-				timer.start();
-			}
+//			if(timerStarted == false) {
+//				timerStarted = true;
+//				timer.start();
+//			}
 		}
 	}
 
-	public void updateTimes(long time) {
-		for (int i=0; i<items.size(); i++) {
-			items.get(i).timeRemaining = items.get(i).time - time;
-			if(items.get(i).timeRemaining<0) {
-				items.get(i).timeRemaining = 0;
-			}
-			GsonBuilder builder = new GsonBuilder();
-			Gson gson = builder.create();
-			Message message = new Message("item",gson.toJson(items.get(i)),i);
-			this.setChanged();
-			this.notifyObservers(gson.toJson(message));
-		}
-	}
+//	public void updateTimes(long time) {
+//		for (int i=0; i<items.size(); i++) {
+//			items.get(i).timeRemaining = items.get(i).time - time;
+//			if(items.get(i).timeRemaining<0) {
+//				items.get(i).timeRemaining = 0;
+//			}
+//			GsonBuilder builder = new GsonBuilder();
+//			Gson gson = builder.create();
+//			Message message = new Message("item",gson.toJson(items.get(i)),i);
+//			this.setChanged();
+//			this.notifyObservers(gson.toJson(message));
+//		}
+//	}
 	
 	protected void processRequest(String input) {
 		String output = "Error";

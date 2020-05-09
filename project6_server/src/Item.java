@@ -6,6 +6,7 @@ public class Item {
 	public int time;
 	public Customer owner;
 	public long timeRemaining;
+	private long startTime;
 	
 	public Item() {
 		name = "";
@@ -22,5 +23,18 @@ public class Item {
 		this.minPrice = minPrice;
 		this.time = time;
 		timeRemaining = time;
+		startTime = System.currentTimeMillis() - startTime;
+		timer();
+	}
+	
+	public void timer() {
+		Thread timer = new Thread(()-> {
+			while (timeRemaining>0) {
+				long elapsedTime = System.currentTimeMillis() - startTime;
+				long elapsedSeconds = elapsedTime / 1000;
+				timeRemaining = time - elapsedSeconds;
+			}
+		});
+		timer.start();
 	}
 }

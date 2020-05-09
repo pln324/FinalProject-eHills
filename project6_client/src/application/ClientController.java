@@ -191,6 +191,7 @@ public class ClientController {
         							names.clear();
         							for(int i=0; i<items.size(); i++) {
         								names.add(items.get(i).name);
+        								items.get(i).timer();
         							}
         							Platform.runLater(()->{
         								itemsBox.setItems(FXCollections.observableArrayList(names));
