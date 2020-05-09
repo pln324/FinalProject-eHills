@@ -29,13 +29,14 @@
                         <RowConstraints maxHeight="128.60001220703126" minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                         <RowConstraints maxHeight="128.60001220703126" minHeight="10.0" prefHeight="114.40001983642577" vgrow="SOMETIMES" />
                       <RowConstraints maxHeight="128.60001220703126" minHeight="0.0" prefHeight="54.39997558593748" vgrow="SOMETIMES" />
-                      <RowConstraints maxHeight="264.5999802589416" minHeight="10.0" prefHeight="49.60002441406249" vgrow="SOMETIMES" />
-                      <RowConstraints maxHeight="236.00003662109373" minHeight="10.0" prefHeight="180.20002441406254" vgrow="SOMETIMES" />
-                        <RowConstraints maxHeight="236.00003662109373" minHeight="10.0" prefHeight="71.39997558593751" vgrow="SOMETIMES" />
+                      <RowConstraints maxHeight="264.5999802589416" minHeight="10.0" prefHeight="50.399993896484375" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="236.00003662109373" minHeight="10.0" prefHeight="44.0000061035156" vgrow="SOMETIMES" />
+                      <RowConstraints maxHeight="236.00003662109373" minHeight="10.0" prefHeight="80.39998779296872" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="236.00003662109373" minHeight="10.0" prefHeight="47.199951171875" vgrow="SOMETIMES" />
                     </rowConstraints>
                      <children>
-                        <Button fx:id="bidButton" mnemonicParsing="false" onAction="#bidButtonPressed" text="Bid!" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-                        <TextField fx:id="bidText" prefHeight="26.0" prefWidth="103.0" promptText="how much would you like to bid" GridPane.columnIndex="2" GridPane.rowIndex="4" />
+                        <Button fx:id="bidButton" mnemonicParsing="false" onAction="#bidButtonPressed" text="Bid!" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                        <TextField fx:id="bidText" prefHeight="26.0" prefWidth="103.0" promptText="how much would you like to bid" GridPane.columnIndex="2" GridPane.rowIndex="5" />
                         <ChoiceBox fx:id="itemsBox" prefWidth="150.0" GridPane.halignment="CENTER" GridPane.rowIndex="3" />
                         <Label text="Which Item would you like to view?" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
                         <Label text="Description" GridPane.columnIndex="1" GridPane.rowIndex="1" />
@@ -44,6 +45,9 @@
                         <TextArea fx:id="descriptionText" editable="false" prefHeight="200.0" prefWidth="200.0" promptText="pick an item" GridPane.columnIndex="2" GridPane.rowIndex="1" />
                         <TextField fx:id="timeText" editable="false" prefHeight="10.0" prefWidth="229.0" promptText="pick an item" GridPane.columnIndex="2" GridPane.rowIndex="2" />
                         <TextField fx:id="lowestBidText" editable="false" promptText="pick an item" GridPane.columnIndex="2" GridPane.rowIndex="3" />
+                        <Button fx:id="logoutButton" mnemonicParsing="false" onAction="#logoutButtonPressed" text="Logout" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+                        <Label text="Current Leader" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                        <TextField fx:id="ownerText" promptText="pick an item" GridPane.columnIndex="2" GridPane.rowIndex="4" />
                      </children>
                   </GridPane>
                </content>
@@ -55,6 +59,6 @@
             </Tab>
          </tabs>
       </TabPane>
-      <Button fx:id="quitButton" layoutX="560.0" layoutY="1.0" mnemonicParsing="false" onAction="#quitButtonPressed" text="Quit" AnchorPane.bottomAnchor="403.79999999999995" AnchorPane.leftAnchor="560.0" AnchorPane.rightAnchor="0.7999999999999972" AnchorPane.topAnchor="1.0000000000000213" />
+      <Button fx:id="quitButton" layoutX="560.0" layoutY="1.0" maxHeight="30.0" maxWidth="30.0" minHeight="30.0" minWidth="30.0" mnemonicParsing="false" onAction="#quitButtonPressed" prefHeight="30.0" prefWidth="30.0" text="X" textAlignment="CENTER" AnchorPane.rightAnchor="1.0" AnchorPane.topAnchor="1.0000000000000213" />
    </children>
 </AnchorPane>

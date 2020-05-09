@@ -36,8 +36,8 @@ public class Client extends Application{
 	  FXMLLoader loader = new FXMLLoader();
 	  Stage loginStage = new Stage();
 	  Parent loginRoot = loader.load(getClass().getResource("login.fxml").openStream());
-	  ((loginController) loader.getController()).setStage(primaryStage, new Scene(root,700,600), controller);
-	  Scene loginScene = new Scene(loginRoot);
+	  ((loginController) loader.getController()).setStage(primaryStage, new Scene(root,620,600), controller);
+	  Scene loginScene = new Scene(loginRoot,500,200);
 	  primaryStage.setScene(loginScene);
 	  primaryStage.show();
   }

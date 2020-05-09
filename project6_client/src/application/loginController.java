@@ -39,6 +39,10 @@ public class loginController {
 		controller.login = this;
 	}
 	
+	public void quitButtonPressed() {
+    	System.exit(0);
+    }
+	
 	public void loginButtonPressed () {
 		String user = userText.getText();
 		if(user.equals("")) {
@@ -52,7 +56,7 @@ public class loginController {
 	public void loginInvalid() {
 		passText.clear();
 		Alert a = new Alert(AlertType.NONE,"incorrect password");
-        a.setAlertType(AlertType.CONFIRMATION); 
+        a.setAlertType(AlertType.WARNING); 
         a.show(); 
 	}
 }

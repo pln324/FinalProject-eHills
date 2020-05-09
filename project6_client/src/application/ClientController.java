@@ -1,6 +1,7 @@
 package application;
 
 import java.io.BufferedReader;
+
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.lang.reflect.Type;
@@ -12,11 +13,13 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.sun.xml.internal.ws.org.objectweb.asm.Label;
 
+import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TextArea;
@@ -33,9 +36,10 @@ public class ClientController {
     private PrintWriter toServer;
     private static String host = "127.0.0.1";
     private BufferedReader fromServer;
-    private String customerID;
+    private static String customerID;
     private String password;
     public loginController login;
+    public Scene loginScene;
     
     @FXML
     private Button bidButton;
@@ -52,13 +56,22 @@ public class ClientController {
     @FXML
     private TextField lowestBidText;
     @FXML
+    private Button logoutButton;
+    @FXML
     private Button quitButton;
+    @FXML
+    private TextField ownerText;
     
     public ClientController() {
     	items = new ArrayList<Item>();
     	itemsBox = new ChoiceBox<String>();
     	login = new loginController();
     	names = new ArrayList<String>();
+    	customerID = "";
+    	password = "";
+    	boxIndex = -1;
+    	AnimationTimer timer = new myTimer();
+    	timer.start();
     	try {
 			setUpNetworking();
 		} catch (Exception e) {
@@ -77,8 +90,12 @@ public class ClientController {
             	boxIndex = new_value.intValue();
             	Item temp = items.get(boxIndex);
             	descriptionText.setText(temp.description);
-            	timeText.setText(Integer.toString(temp.time));
+            	timeText.setText(Long.toString(temp.timeRemaining));
             	lowestBidText.setText(Double.toString(temp.minPrice));
+            	if(temp.owner.username.equals("")) {
+            		ownerText.setText("Be the first to bid!");
+            	}
+            	else ownerText.setText(temp.owner.username);
             } 
         }); 
     }
@@ -89,7 +106,9 @@ public class ClientController {
 			double bid = Double.parseDouble(bidText.getText());
 			if(bid>items.get(boxIndex).minPrice) {
 				items.get(boxIndex).minPrice = bid;
+				items.get(boxIndex).owner = new Customer(customerID, password);
 				lowestBidText.setText(bidText.getText());
+				ownerText.setText(customerID);
 				GsonBuilder builder = new GsonBuilder();
 				Gson gson = builder.create();
 				Message info = new Message("bid",gson.toJson(items.get(boxIndex)),boxIndex);
@@ -104,6 +123,11 @@ public class ClientController {
 			bidText.clear();
 			bidText.setPromptText("not a number!");
 		}
+    }
+    
+    public void logoutButtonPressed() {
+    	login.primaryStage.setTitle("Login");
+    	login.primaryStage.setScene(loginScene);
     }
     
     public void quitButtonPressed() {
@@ -145,7 +169,11 @@ public class ClientController {
         					case "item":
         						Item tempy = gson.fromJson(message.input, Item.class);
         						items.get(message.number).minPrice = tempy.minPrice;
-        						lowestBidText.setText(Double.toString(tempy.minPrice));
+        						items.get(message.number).owner = tempy.owner;
+        						if(message.number == boxIndex) {
+        							lowestBidText.setText(Double.toString(tempy.minPrice));
+        							ownerText.setText(tempy.owner.username);
+        						}
         						break;
         					case "itemArray":
         						Type ItemListType = new TypeToken<ArrayList<Item>>(){}.getType(); 
@@ -160,16 +188,18 @@ public class ClientController {
         						break;
         					case "validUser":
         						Customer valid = gson.fromJson(message.input, Customer.class);
-        						customerID = valid.username;
-        						password = valid.password;
-        						Platform.runLater(()->{
-        							login.primaryStage.setTitle("Welcome, " + customerID);
-            						login.primaryStage.setScene(login.primaryScene);
-        						});
+        						if(customerID.equals(valid.username) && password.equals(valid.password)) {
+        							Platform.runLater(()->{
+        								loginScene = login.primaryStage.getScene();
+        								login.primaryStage.setTitle("Welcome, " + customerID);
+        								login.primaryStage.setScene(login.primaryScene);
+        							});
+        						}
         						break;
         					case "invalidUser":
         						//Customer invalid = gson.fromJson(message.input, Customer.class);
-        						
+        						customerID = "";
+        						password = "";
         						Platform.runLater(()->{
         							login.loginInvalid();
         						});
@@ -186,6 +216,8 @@ public class ClientController {
       }
     
     public void sendToServer(Customer customer) {
+    	customerID = customer.username;
+    	password = customer.password;
     	GsonBuilder builder = new GsonBuilder();
 		Gson gson = builder.create();
 		Message message = new Message("user",gson.toJson(customer),1);
@@ -200,4 +232,31 @@ public class ClientController {
         toServer.println(string);
         toServer.flush();
       }
+    
+    private class myTimer extends AnimationTimer {
+			
+    	private long startTime;
+    	
+    	public myTimer() {
+			startTime = System.currentTimeMillis();
+		}
+		
+		@Override
+		public void handle(long now) {
+			long elapsedTime = System.currentTimeMillis() - startTime;
+			long elapsedSeconds = elapsedTime / 1000;
+			updateTimes(elapsedSeconds);
+			if(boxIndex>=0)
+			timeText.setText(Long.toString(items.get(boxIndex).timeRemaining));
+		}
+		
+		public void updateTimes(long time) {
+			for (int i=0; i<items.size(); i++) {
+				items.get(i).timeRemaining = items.get(i).time - time;
+				if(items.get(i).timeRemaining<=0) {
+					items.get(i).timeRemaining = 0;
+				}
+			}
+		}
+    }
 }

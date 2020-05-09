@@ -19,9 +19,10 @@ class Server extends Observable {
 		users = new HashMap<String,String>();
 		items = new ArrayList<Item>();
 		for(int i=0; i<5; i++) {
-			Item i1 = new Item("item" + Integer.toString(i),"an item",250,300);
+			Item i1 = new Item("item" + Integer.toString(i),"an item",250,180);
 			items.add(i1);
 		}
+		items.add(new Item("me", "its literally me",1,100));
 		new Server().runServer();
 	}
 
@@ -70,9 +71,11 @@ class Server extends Observable {
 //				items = gson.fromJson(message.input, ItemListType);
 				Item tempy = gson.fromJson(message.input, Item.class);
 				items.get(message.number).minPrice = tempy.minPrice;
+				items.get(message.number).owner = tempy.owner;
 				item = new Message("item",gson.toJson(items.get(message.number)),message.number);
 				this.setChanged();
 				this.notifyObservers(gson.toJson(item));
+				break;
 			case "user":
 				Customer tempCust = gson.fromJson(message.input, Customer.class);
 				Message validUser;

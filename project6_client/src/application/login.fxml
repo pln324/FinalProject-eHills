@@ -9,24 +9,27 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
 
-<DialogPane fx:id="dp" contentText="Please log in" headerText="Login" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="150.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.loginController">
+<DialogPane fx:id="dp" contentText="Please log in" headerText="Login" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="200.0" prefWidth="500.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.loginController">
    <content>
-      <GridPane prefHeight="126.0" prefWidth="400.0">
+      <GridPane prefHeight="150.0" prefWidth="500.0">
         <columnConstraints>
           <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
           <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
         </columnConstraints>
         <rowConstraints>
-          <RowConstraints maxHeight="35.19998779296875" minHeight="10.0" prefHeight="35.19998779296875" vgrow="SOMETIMES" />
-          <RowConstraints maxHeight="43.19998779296874" minHeight="10.0" prefHeight="38.40001220703125" vgrow="SOMETIMES" />
-          <RowConstraints maxHeight="24.79999389648438" minHeight="10.0" prefHeight="17.600012207031256" vgrow="SOMETIMES" />
+          <RowConstraints maxHeight="55.999987792968746" minHeight="10.0" prefHeight="49.59999389648438" vgrow="SOMETIMES" />
+          <RowConstraints maxHeight="71.20000000000002" minHeight="10.0" prefHeight="47.20001831054688" vgrow="SOMETIMES" />
+          <RowConstraints maxHeight="43.99998168945311" minHeight="0.0" prefHeight="43.99998168945311" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
-            <PasswordField fx:id="passText" promptText="(Optional)" GridPane.columnIndex="1" GridPane.rowIndex="1" />
             <TextField fx:id="userText" promptText="hello" GridPane.columnIndex="1" />
+            <PasswordField fx:id="passText" promptText="(Optional)" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            <Button fx:id="loginButton" mnemonicParsing="false" onAction="#loginButtonPressed" onKeyPressed="#loginButtonPressed" text="Log In" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="2" />
+            <Button fx:id="guestButton" mnemonicParsing="false" text="Login as Guest" GridPane.rowIndex="2" />
+            <Button fx:id="quitButton" mnemonicParsing="false" onAction="#quitButtonPressed" onKeyPressed="#quitButtonPressed" text="Quit" GridPane.columnIndex="2" GridPane.halignment="RIGHT" />
             <Label text="Username" />
             <Label text="Password" GridPane.rowIndex="1" />
-            <Button fx:id="loginButton" mnemonicParsing="false" onAction="#loginButtonPressed" text="Log In" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="2" />
          </children>
       </GridPane>
    </content>
