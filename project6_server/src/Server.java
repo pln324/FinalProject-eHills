@@ -1,3 +1,4 @@
+import java.io.FileNotFoundException;
 import java.lang.reflect.Type;
 
 import java.net.ServerSocket;
@@ -22,11 +23,24 @@ class Server extends Observable {
 		users = new HashMap<String,Customer>();
 		items = new ArrayList<Item>();
 		for(int i=0; i<5; i++) {
-			Item i1 = new Item("item" + Integer.toString(i),"an item",250,75);
+			Item i1 = new Item("item" + Integer.toString(i),"an item",250,100);
 			items.add(i1);
 		}
-		items.add(new Item("me", "its literally me",1,50));
+		items.add(new Item("me", "its literally me",1,75));
 		new Server().runServer();
+	}
+
+	public static void parseArgs(String[] args) throws FileNotFoundException {
+		 Scanner sc = new Scanner(new File(args[0]));
+
+	        // the input should only be one continuous line of values, separated by spaces
+	        String[] line = sc.nextLine().split(" ");
+	        sections = new int[line.length];
+	        sc.close();
+
+	        for (int i = 0; i < line.length; i++) {
+	            sections[i] = Integer.parseInt(line[i]);
+	        }
 	}
 
 	private void runServer() {
@@ -43,6 +57,7 @@ class Server extends Observable {
 		@SuppressWarnings("resource")
 		ServerSocket serverSock = new ServerSocket(4242);
 		startTime = System.currentTimeMillis();
+		
 		while (true) {
 			Socket clientSocket = serverSock.accept();
 			System.out.println("Connecting to... " + clientSocket);

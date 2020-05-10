@@ -156,6 +156,7 @@ public class ClientController {
     }
     
     public void logoutButtonPressed() {
+    	customer = new Customer();
     	login.primaryStage.setTitle("Login");
     	login.primaryStage.setScene(loginScene);
     }

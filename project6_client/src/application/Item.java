@@ -24,6 +24,7 @@ public class Item {
 		this.minPrice = minPrice;
 		this.time = time;
 		timeRemaining = time;
+		owner = new Customer();
 		startTime = System.currentTimeMillis() - startTime;
 		timer();
 	}
