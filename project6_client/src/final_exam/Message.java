@@ -1,4 +1,4 @@
-package application;
+package final_exam;
 
 class Message {
   String type;

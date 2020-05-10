@@ -1,4 +1,4 @@
-package application;
+package final_exam;
 
 import java.util.Scanner;
 import java.io.BufferedReader;
