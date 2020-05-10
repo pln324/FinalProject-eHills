@@ -16,5 +16,14 @@ public class Customer {
 	public Customer(String username, String password) {
 		this.username = username;
 		this.password = password;
+		bought = new ArrayList<Item>();
+	}
+	
+	public void itemPurchased(Item item) {
+		bought.add(item);
+	}
+	
+	public ArrayList<Item> itemsOwned() {
+		return bought;
 	}
 }

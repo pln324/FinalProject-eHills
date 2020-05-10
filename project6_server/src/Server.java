@@ -15,11 +15,11 @@ import com.google.gson.reflect.TypeToken;
 class Server extends Observable {
 
 	static ArrayList<Item> items;
-	static Map <String,String> users;
+	static Map <String,Customer> users;
 	private static long startTime;
 	
 	public static void main(String[] args) {
-		users = new HashMap<String,String>();
+		users = new HashMap<String,Customer>();
 		items = new ArrayList<Item>();
 		for(int i=0; i<5; i++) {
 			Item i1 = new Item("item" + Integer.toString(i),"an item",250,75);
@@ -57,6 +57,9 @@ class Server extends Observable {
 					    if (remove.timeRemaining == 0) { 
 					    	GsonBuilder builder = new GsonBuilder();
 							Gson gson = builder.create();
+							if(users.containsKey(remove.owner.username)) {
+								users.get(remove.owner.username).itemPurchased(remove);
+							}
 							Message message = new Message("remove",gson.toJson(remove),i);
 							this.setChanged();
 							this.notifyObservers(gson.toJson(message));
@@ -121,9 +124,9 @@ class Server extends Observable {
 				Customer tempCust = gson.fromJson(message.input, Customer.class);
 				Message validUser;
 				if(users.containsKey(tempCust.username)) {
-					if((users.get(tempCust.username)).equals(tempCust.password)) {
-						validUser = new Message("validUser",gson.toJson(tempCust),1);
-						users.put(tempCust.username, tempCust.password);
+					if(((users.get(tempCust.username)).password).equals(tempCust.password)) {
+						validUser = new Message("validUser",gson.toJson(users.get(tempCust.username)),1);
+						//users.put(tempCust.username + tempCust.password, tempCust);
 						this.setChanged();
 						this.notifyObservers(gson.toJson(validUser));
 						break;
@@ -136,14 +139,15 @@ class Server extends Observable {
 					}
 				}
 				else {
-					users.put(tempCust.username, tempCust.password);
+					users.put(tempCust.username, tempCust);
 					validUser = new Message("validUser",gson.toJson(tempCust),1);
 					this.setChanged();
 					this.notifyObservers(gson.toJson(validUser));
 				}
 				break;
-			case "time":
-				items.get(message.number).timeRemaining = gson.fromJson(message.input, Long.class);
+			case "purchase":
+				tempCust = gson.fromJson(message.input, Customer.class);
+				users.put(tempCust.username, tempCust);
 				break;
 			}
 			//addItems();

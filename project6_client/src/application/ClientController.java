@@ -139,10 +139,10 @@ public class ClientController {
 				items.get(boxIndex).owner = customer;
 				lowestBidText.setText(bidText.getText());
 				ownerText.setText(customer.username);
+				bidText.setPromptText("how much would you like to bid");
 				GsonBuilder builder = new GsonBuilder();
 				Gson gson = builder.create();
 				Message info = new Message("bid",gson.toJson(items.get(boxIndex)),boxIndex);
-				changed = true;
 				sendToServer(gson.toJson(info));
 			} else {
 				bidText.clear();
@@ -225,10 +225,12 @@ public class ClientController {
         					case "validUser":
         						Customer valid = gson.fromJson(message.input, Customer.class);
         						if(customer.username.equals(valid.username) && customer.password.equals(valid.password)) {
+        							customer = valid;
         							Platform.runLater(()->{
         								loginScene = login.primaryStage.getScene();
         								login.primaryStage.setTitle("Welcome, " + customer.username);
         								login.primaryStage.setScene(login.primaryScene);
+        								buyTable.setItems(FXCollections.observableArrayList(customer.itemsOwned()));
         							});
         						}
         						break;
@@ -242,9 +244,11 @@ public class ClientController {
         					case "remove":
         						Item remove = gson.fromJson(message.input, Item.class);
         						if(remove.owner.username.equals(customer.username)) {
-        							bought.add(remove);
+        							customer.itemPurchased(remove);
+        							Message purchase = new Message("purchase",gson.toJson(customer),1);
+        							sendToServer(gson.toJson(purchase));
         							Platform.runLater(()->{
-        								buyTable.setItems(FXCollections.observableArrayList(bought));
+        								buyTable.setItems(FXCollections.observableArrayList(customer.itemsOwned()));
         							});
         						}
         						if(message.number>items.size()) {
