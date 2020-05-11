@@ -5,7 +5,17 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.lang.reflect.Type;
 import java.net.Socket;
+import java.security.InvalidKeyException;
+import java.security.Key;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.Base64;
+
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.spec.SecretKeySpec;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -41,6 +51,7 @@ public class ClientController {
     private static String host = "127.0.0.1";
     private BufferedReader fromServer;
     private Customer customer;
+    private Key key;
     public loginController login;
     public Scene loginScene;
     public ArrayList<Item> bought; 
@@ -77,6 +88,7 @@ public class ClientController {
     	names = new ArrayList<String>();
     	bought = new ArrayList<Item>();
     	customer = new Customer();
+    	key = null;
     	boxIndex = -1;
     	AnimationTimer timer = new myTimer();
     	timer.start();
@@ -157,11 +169,8 @@ public class ClientController {
 				GsonBuilder builder = new GsonBuilder();
 				Gson gson = builder.create();
 				Message info = new Message("bid",gson.toJson(items.get(boxIndex)),boxIndex);
-				sendToServer(gson.toJson(info));
-			} else if (items.get(boxIndex).sold == true) {
-				
-			}
-			else {
+				sendToServer(gson.toJson(encrypt(info)));
+			} else {
 				bidText.clear();
 				bidText.setPromptText("too low!");
 			}
@@ -198,7 +207,14 @@ public class ClientController {
         		try {
         			while ((input = fromServer.readLine()) != null) {
         				Gson gson = new Gson();
-        				Message message = gson.fromJson(input, Message.class);
+        				Message keyMessage = gson.fromJson(input, Message.class);
+        				if(keyMessage.type.equals("key")) {
+        					// decode the base64 encoded string
+        					byte[] decodedKey = Base64.getDecoder().decode(keyMessage.input);
+        					// rebuild key using SecretKeySpec
+        					key = new SecretKeySpec(decodedKey, 0, decodedKey.length, "AES");
+        				}
+        				Message message = decrypt(gson.fromJson(input, Message.class));
         					switch (message.type) {
         					case "item":
         						if(items.size()>0) {
@@ -241,24 +257,17 @@ public class ClientController {
         						}
         						break;
         					case "invalidUser":
-        						//Customer invalid = gson.fromJson(message.input, Customer.class);
-//        						customerID = "";
-//        						password = "";
         						Platform.runLater(()->{
         							login.loginInvalid();
         						});
+        						break;
         					case "remove":
         						Item remove = gson.fromJson(message.input, Item.class);
         						items.set(message.number,remove);
-//        						if(!remove.owner.username.equals("")) {
-//        							items.get(message.number).bidHistory += items.get(message.number).owner.username + 
-//            								" won the auction with a bid of " + Double.toString(items.get(message.number).minPrice);
-//        						}
-//        						else items.get(message.number).bidHistory += "Auction over with no bids.";
         						if(remove.owner.username.equals(customer.username)) {
         							customer.itemPurchased(remove);
         							Message purchase = new Message("purchase",gson.toJson(items.get(message.number)),message.number);
-        							sendToServer(gson.toJson(purchase));
+        							sendToServer(gson.toJson(encrypt(purchase)));
         							Platform.runLater(()->{
         								buyTable.setItems(FXCollections.observableArrayList(customer.itemsOwned()));
         							});
@@ -275,17 +284,9 @@ public class ClientController {
             							bidText.setPromptText("Auction over! Winner: " + remove.owner.username);
         							});
         						}
-//        						if(message.number>items.size()) {
-//        							names.remove(message.number-1);
-//        							items.remove(message.number-1);
-//        						}
-//        						else {
-//        							names.remove(message.number);
-//        							items.remove(message.number);
-//        						}
-//        						Platform.runLater(()->{
-//        							itemsBox.getItems().remove(message.number);
-//    							});	
+        						break;
+        					case "key":
+        						key = gson.fromJson(message.input, Key.class);
         						break;
         					}
         					System.out.println("From server: " + input);
@@ -304,7 +305,37 @@ public class ClientController {
     	GsonBuilder builder = new GsonBuilder();
 		Gson gson = builder.create();
 		Message message = new Message("user",gson.toJson(customer),1);
-		sendToServer(gson.toJson(message));
+		sendToServer(gson.toJson(encrypt(message)));
+    }
+    
+    private Message decrypt(Message message) {
+		 try {
+			 Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+			 cipher.init(Cipher.DECRYPT_MODE, key);
+			 Gson gson = new Gson();
+			 Type ItemListType = new TypeToken<byte[]>(){}.getType(); 
+			 byte[] decipheredText = cipher.doFinal(gson.fromJson(message.input, ItemListType));
+			 return gson.fromJson(new String(decipheredText), Message.class);
+		 } catch (Exception e) {
+			 e.printStackTrace();
+		 }
+		 return null;
+	 }
+    
+    public Message encrypt(Message message) {
+    	try {
+			Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+			cipher.init(Cipher.ENCRYPT_MODE, key);
+			GsonBuilder builder = new GsonBuilder();
+			Gson gson = builder.create();
+			byte[] input = gson.toJson(message).getBytes();	  
+		    cipher.update(input);
+		    byte[] cipherText = cipher.doFinal();
+		    return new Message("encrypt",gson.toJson(cipherText),1);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+    	return null;
     }
     
     protected void processRequest(String input) {

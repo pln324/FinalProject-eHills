@@ -25,11 +25,12 @@
          <children>
             <TextField fx:id="userText" promptText="Enter a username" GridPane.columnIndex="1" />
             <PasswordField fx:id="passText" promptText="(Optional)" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-            <Button fx:id="loginButton" mnemonicParsing="false" onAction="#loginButtonPressed" onKeyPressed="#loginButtonPressed" text="Log In/Create account" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="2" />
+            <Button fx:id="loginButton" mnemonicParsing="false" onAction="#loginButtonPressed" onKeyPressed="#loginButtonPressed" text="Log In" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="2" />
             <Button fx:id="guestButton" mnemonicParsing="false" text="Login as Guest" GridPane.rowIndex="2" />
             <Button fx:id="quitButton" mnemonicParsing="false" onAction="#quitButtonPressed" onKeyPressed="#quitButtonPressed" text="Quit" GridPane.columnIndex="2" GridPane.halignment="RIGHT" />
             <Label text="Username" />
             <Label text="Password" GridPane.rowIndex="1" />
+            <Button mnemonicParsing="false" text="Create Account" GridPane.columnIndex="2" GridPane.halignment="RIGHT" GridPane.rowIndex="2" />
          </children>
       </GridPane>
    </content>

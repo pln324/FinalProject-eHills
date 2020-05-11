@@ -63,12 +63,16 @@ public class loginController {
 	
 	public void loginInvalid() {
 		passText.clear();
-		Alert a = new Alert(AlertType.NONE,"username has been taken, incorrect password");
+		Alert a = new Alert(AlertType.NONE,"incorrect password");
         a.setAlertType(AlertType.WARNING); 
         a.show(); 
 	}
 	
 	public void newAccountButtonPressed() {
-		
+	
+	}
+	
+	public void guestButtonPressed() {
+	
 	}
 }
