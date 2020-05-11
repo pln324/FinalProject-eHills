@@ -69,6 +69,11 @@ class Server extends Observable {
 							Gson gson = builder.create();
 							if(users.containsKey(remove.owner.username)) {
 								users.get(remove.owner.username).itemPurchased(remove);
+								items.get(i).bidHistory += items.get(i).owner.username + 
+        								" won the auction with a bid of " + Double.toString(items.get(i).minPrice);
+							}
+							else {
+								items.get(i).bidHistory += "Auction over with no bids.";
 							}
 							Message message = new Message("remove",gson.toJson(remove),i);
 							this.setChanged();

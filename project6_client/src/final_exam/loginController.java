@@ -50,9 +50,10 @@ public class loginController {
 	
 	public void loginButtonPressed () {
 		String user = userText.getText();
-		if(user.equals("")) {
-			user = "guest" + currentID;
-			currentID++;
+		if(user.contains(" ") || user.contentEquals("")) {
+			userText.clear();
+			userText.setPromptText("not a valid username");
+			return;
 		}
 		Customer customer = new Customer(user,passText.getText());
 		userText.clear();
@@ -62,7 +63,7 @@ public class loginController {
 	
 	public void loginInvalid() {
 		passText.clear();
-		Alert a = new Alert(AlertType.NONE,"incorrect password");
+		Alert a = new Alert(AlertType.NONE,"username has been taken, incorrect password");
         a.setAlertType(AlertType.WARNING); 
         a.show(); 
 	}

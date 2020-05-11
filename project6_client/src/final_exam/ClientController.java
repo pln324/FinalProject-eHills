@@ -40,8 +40,6 @@ public class ClientController {
     private PrintWriter toServer;
     private static String host = "127.0.0.1";
     private BufferedReader fromServer;
-//    private static String customerID;
-//    private String password;
     private Customer customer;
     public loginController login;
     public Scene loginScene;
@@ -125,7 +123,8 @@ public class ClientController {
             			bidText.setEditable(false);
 						bidButton.setDisable(true);
 						bidText.clear();
-						bidText.setPromptText("Auction over! Winner: " + temp.owner.username);
+						if(temp.owner.username.equals("")) bidText.setPromptText("Auction over with no bids :(");
+						else bidText.setPromptText("Auction over! Winner: " + temp.owner.username);
 						ownerText.setText(temp.owner.username);
             		}
             		else ownerText.setText(temp.owner.username);
@@ -250,12 +249,15 @@ public class ClientController {
         						});
         					case "remove":
         						Item remove = gson.fromJson(message.input, Item.class);
-        						items.get(message.number).sold = true;
-        						items.get(message.number).bidHistory += items.get(message.number).owner.username + 
-        								" won the auction with a bid of " + Double.toString(items.get(message.number).minPrice);
+        						items.set(message.number,remove);
+//        						if(!remove.owner.username.equals("")) {
+//        							items.get(message.number).bidHistory += items.get(message.number).owner.username + 
+//            								" won the auction with a bid of " + Double.toString(items.get(message.number).minPrice);
+//        						}
+//        						else items.get(message.number).bidHistory += "Auction over with no bids.";
         						if(remove.owner.username.equals(customer.username)) {
         							customer.itemPurchased(remove);
-        							Message purchase = new Message("purchase",gson.toJson(customer),1);
+        							Message purchase = new Message("purchase",gson.toJson(items.get(message.number)),message.number);
         							sendToServer(gson.toJson(purchase));
         							Platform.runLater(()->{
         								buyTable.setItems(FXCollections.observableArrayList(customer.itemsOwned()));
@@ -267,6 +269,9 @@ public class ClientController {
         								bidText.clear();
         								bidText.setEditable(false);
             							bidButton.setDisable(true);
+            							if(items.get(message.number).owner.username.equals("")) {
+            								bidText.setPromptText("Auction over with no bids :(");
+            							} else
             							bidText.setPromptText("Auction over! Winner: " + remove.owner.username);
         							});
         						}
@@ -315,11 +320,11 @@ public class ClientController {
 		
 		@Override
 		public void handle(long now) {
-			//buyTable.setItems(FXCollections.observableArrayList(bought));
 			if(boxIndex >= 0 && boxIndex < items.size()) {
-				timeText.setText(Long.toString(items.get(boxIndex).timeRemaining));
-				//lowestBidText.setText(Double.toString(items.get(boxIndex).minPrice));
-				//ownerText.setText(items.get(boxIndex).owner.username);
+				timeText.setText(
+						Long.toString((items.get(boxIndex).timeRemaining)/60) + ":" + 
+						Long.toString(((items.get(boxIndex).timeRemaining)%60)/10) + 
+						Long.toString(((items.get(boxIndex).timeRemaining)%60)%10));
 			}
 		}
     }
