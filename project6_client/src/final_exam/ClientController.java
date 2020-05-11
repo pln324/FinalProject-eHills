@@ -49,7 +49,8 @@ public class ClientController {
     private Customer customer;
     public loginController login;
     public Scene loginScene;
-    public ArrayList<Item> bought; 
+    public ArrayList<Item> bought;
+    public int clientID;
     
     @FXML
     private Button bidButton;
@@ -89,6 +90,7 @@ public class ClientController {
     	customer = new Customer();
     	imageFrame = new ImageView();
     	logo = new ImageView();
+    	clientID = 0;
     	boxIndex = -1;
     	AnimationTimer timer = new myTimer();
     	timer.start();
@@ -109,9 +111,9 @@ public class ClientController {
         TableColumn description = new TableColumn("Description");
         TableColumn purchasePrice = new TableColumn("Price");
         itemName.setCellValueFactory(new PropertyValueFactory<Item,String>("name"));
-        itemName.setMinWidth(75);
+        itemName.setMinWidth(100);
         description.setCellValueFactory(new PropertyValueFactory<Item,String>("description"));
-        description.setMinWidth(450);
+        description.setMinWidth(425);
         purchasePrice.setCellValueFactory(new PropertyValueFactory<Item,Double>("minPrice"));
         purchasePrice.setMinWidth(75);
         buyTable.getColumns().clear();
@@ -154,14 +156,6 @@ public class ClientController {
             		else ownerText.setText(temp.owner.username);
             	} catch (Exception e) {
             		e.printStackTrace();
-//            		descriptionText.clear();
-//            		timeText.clear();
-//            		lowestBidText.clear();
-//            		ownerText.clear();
-//            		bidText.clear();
-//            		Alert a = new Alert(AlertType.NONE,"auction over!");
-//                    a.setAlertType(AlertType.WARNING); 
-//                    a.show(); 
             	}
             } 
         }); 
@@ -204,7 +198,7 @@ public class ClientController {
     
     public void logoutButtonPressed() {			//return to login window
     	customer = new Customer();
-    	String musicFile = "buttonSound.mp3";     // For example
+    	String musicFile = "buttonSound.mp3";
     	Media sound = new Media(new File(musicFile).toURI().toString());
     	MediaPlayer mediaPlayer = new MediaPlayer(sound);
     	mediaPlayer.play();
@@ -242,7 +236,6 @@ public class ClientController {
         						if(items.size()>0) {
         							Item tempy = gson.fromJson(message.input, Item.class);
         							items.set(message.number, tempy);
-        							//items.get(message.number).timer();
         							if(message.number == boxIndex) {
         								Platform.runLater(()->{
         									lowestBidText.setText(Double.toString(tempy.minPrice));
@@ -252,15 +245,15 @@ public class ClientController {
         							}
         						}
         						break;
-        					case "itemArray":		//sends full list of items at start of client creation
+        					case "initialize":		//sends full list of items at start of client creation
         						if(initialized == false) {
         							initialized = true;
+        							clientID = message.number;
         							Type ItemListType = new TypeToken<ArrayList<Item>>(){}.getType(); 
         							items = gson.fromJson(message.input, ItemListType);
         							names.clear();
         							for(int i=0; i<items.size(); i++) {
         								names.add(items.get(i).name);
-        								//items.get(i).timer();
         							}
         							Platform.runLater(()->{
         								itemsBox.setItems(FXCollections.observableArrayList(names));
@@ -280,9 +273,11 @@ public class ClientController {
         						}
         						break;
         					case "invalidUser":		//password incorrect, show alert window
-        						Platform.runLater(()->{
-        							login.loginInvalid("incorrect password");
-        						});
+        						if(message.number==clientID) {
+        							Platform.runLater(()->{
+        								login.loginInvalid("incorrect password");
+        							});
+        						}
         						break;
         					case "remove":			//once item auction is over, stop selling it
         						Item remove = gson.fromJson(message.input, Item.class);
@@ -292,6 +287,15 @@ public class ClientController {
         							Message purchase = new Message("purchase",gson.toJson(items.get(message.number)),message.number);
         							sendToServer(gson.toJson(purchase));
         							Platform.runLater(()->{
+        								String musicFile = "partyhorn.mp3";
+        								Media sound = new Media(new File(musicFile).toURI().toString());
+        						    	MediaPlayer mediaPlayer = new MediaPlayer(sound);
+        						    	mediaPlayer.play();
+        							});
+        							Platform.runLater(()->{
+        								Alert a = new Alert(AlertType.NONE,"Congrats, you have won the auction for " + remove.name + "!");
+        						        a.setAlertType(AlertType.INFORMATION); 
+        						        a.show(); 
         								buyTable.setItems(FXCollections.observableArrayList(customer.itemsOwned()));
         							});
         						}
@@ -324,7 +328,7 @@ public class ClientController {
     	this.customer = customer;
     	GsonBuilder builder = new GsonBuilder();
 		Gson gson = builder.create();
-		Message message = new Message("user",gson.toJson(customer),1);
+		Message message = new Message("user",gson.toJson(customer),clientID);
 		sendToServer(gson.toJson(message));
     }
     
@@ -343,9 +347,9 @@ public class ClientController {
 		public void handle(long now) {
 			for(int i=0; i<items.size(); i++) {
 				if(items.get(i).timeRemaining > 0) {
-				long elapsedTime = System.currentTimeMillis() - items.get(i).startTime;
-				long elapsedSeconds = elapsedTime / 1000;
-				items.get(i).timeRemaining = items.get(i).time - elapsedSeconds;
+					long elapsedTime = System.currentTimeMillis() - items.get(i).startTime;
+					long elapsedSeconds = elapsedTime / 1000;
+					items.get(i).timeRemaining = items.get(i).time - elapsedSeconds;
 				}
 			}
 			if(boxIndex<items.size() && boxIndex>=0) {

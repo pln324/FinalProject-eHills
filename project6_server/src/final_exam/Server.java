@@ -18,10 +18,12 @@ class Server extends Observable {
 
 	static ArrayList<Item> items;
 	static Map <String,Customer> users;
+	private static int ClientID;
 	
 	public static void main(String[] args) throws FileNotFoundException{
 		users = new HashMap<String,Customer>();
 		items = new ArrayList<Item>();
+		ClientID = 0;
 		parseArgs(args);
 		new Server().runServer();
 	}
@@ -114,7 +116,7 @@ class Server extends Observable {
 						break;
 					}
 					else {
-						Message invalidUser = new Message("invalidUser",gson.toJson(tempCust),1);			//send a message denying user
+						Message invalidUser = new Message("invalidUser",gson.toJson(tempCust),message.number);			//send a message denying user
 						this.setChanged();
 						this.notifyObservers(gson.toJson(invalidUser));
 						break;
@@ -140,7 +142,8 @@ class Server extends Observable {
 	public void addItems() {
 		GsonBuilder builder = new GsonBuilder();
 		Gson gson = builder.create();
-		Message message = new Message("itemArray",gson.toJson(items),1);
+		Message message = new Message("initialize",gson.toJson(items),ClientID);
+		ClientID++;
 		this.setChanged();
 		this.notifyObservers(gson.toJson(message));
 	}

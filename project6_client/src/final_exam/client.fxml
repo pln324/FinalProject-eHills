@@ -50,9 +50,9 @@
                         <TextField fx:id="lowestBidText" editable="false" promptText="pick an item" GridPane.columnIndex="2" GridPane.rowIndex="4" />
                         <Button fx:id="logoutButton" mnemonicParsing="false" onAction="#logoutButtonPressed" text="Logout" GridPane.columnIndex="1" GridPane.rowIndex="7" />
                         <Label text="Current Leader" textFill="#f8ff00" GridPane.columnIndex="1" GridPane.rowIndex="5" />
-                        <TextField fx:id="ownerText" promptText="pick an item" GridPane.columnIndex="2" GridPane.rowIndex="5" />
+                        <TextField fx:id="ownerText" editable="false" promptText="pick an item" GridPane.columnIndex="2" GridPane.rowIndex="5" />
                         <Label text="Bid History" textFill="#f8ff00" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                        <TextArea fx:id="bidHistoryText" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                        <TextArea fx:id="bidHistoryText" editable="false" prefHeight="200.0" prefWidth="200.0" wrapText="true" GridPane.columnIndex="2" GridPane.rowIndex="2" />
                         <ImageView fx:id="imageFrame" fitHeight="200.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="BOTTOM" />
                         <ImageView fx:id="logo" fitHeight="63.0" fitWidth="87.0" pickOnBounds="true" preserveRatio="true" GridPane.halignment="CENTER" GridPane.rowIndex="6" />
                      </children>

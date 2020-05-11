@@ -8,7 +8,7 @@ public class Item {
 	public Customer owner;
 	public long timeRemaining;
 	public boolean sold;
-	private long startTime;
+	public long startTime;
 	public String bidHistory;
 	public String image;
 	
