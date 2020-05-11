@@ -11,6 +11,7 @@ public class Item {
 	public long startTime;
 	public String bidHistory;
 	public String image;
+	public double buyItNow;
 	
 	public Item() {
 		name = "";
@@ -20,10 +21,11 @@ public class Item {
 		timeRemaining = 0;
 		sold = true;
 		owner = new Customer();
+		buyItNow = 0;
 		image = "";
 	}
 	
-	public Item(String name, String description, double minPrice, int time, String image) {
+	public Item(String name, String description, double minPrice, int time, String image, double buyItNow) {
 		this.name = name;
 		this.description = description;
 		this.minPrice = minPrice;
@@ -33,6 +35,7 @@ public class Item {
 		owner = new Customer();
 		this.image = image;
 		bidHistory = "Item Listed\n";
+		this.buyItNow = buyItNow;
 		startTime = System.currentTimeMillis() - startTime;
 		timer();
 	}

@@ -2,7 +2,6 @@ package final_exam;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.lang.reflect.Type;
@@ -80,6 +79,8 @@ public class ClientController {
     private ImageView imageFrame;
     @FXML
     private ImageView logo;
+    @FXML
+    private TextField buyItNowText;
     
     public ClientController() {
     	items = new ArrayList<Item>();
@@ -136,6 +137,7 @@ public class ClientController {
             		bidText.setEditable(true);
 					bidButton.setDisable(false);
 					bidText.setPromptText("how much would you like to bid");
+					buyItNowText.setText(Double.toString(temp.buyItNow));
 					
 					File file = new File(temp.image);
 			        Image image = new Image(file.toURI().toString());
@@ -172,15 +174,14 @@ public class ClientController {
 			    	MediaPlayer mediaPlayer = new MediaPlayer(sound);
 			    	mediaPlayer.play();
 				});
-//				String musicFile = "bidSound.mp3";
-//		    	Media sound = new Media(new File(musicFile).toURI().toString());
-//		    	MediaPlayer mediaPlayer = new MediaPlayer(sound);
-//		    	mediaPlayer.play();
 				items.get(boxIndex).minPrice = bid;
 				items.get(boxIndex).owner = customer;
 				items.get(boxIndex).bidHistory += customer.username + " bids $" + bidText.getText() + "\n";
 				lowestBidText.setText(bidText.getText());
 				ownerText.setText(customer.username);
+				if(bid>=items.get(boxIndex).buyItNow) {
+					items.get(boxIndex).timeRemaining = 0;
+				}
 				bidHistoryText.setText(items.get(boxIndex).bidHistory);
 				bidText.setPromptText("how much would you like to bid");
 				GsonBuilder builder = new GsonBuilder();

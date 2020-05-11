@@ -48,13 +48,15 @@
                         <TextArea fx:id="descriptionText" editable="false" prefHeight="200.0" prefWidth="200.0" promptText="pick an item" wrapText="true" GridPane.columnIndex="2" GridPane.rowIndex="1" />
                         <TextField fx:id="timeText" editable="false" prefHeight="10.0" prefWidth="229.0" promptText="pick an item" GridPane.columnIndex="2" GridPane.rowIndex="3" />
                         <TextField fx:id="lowestBidText" editable="false" promptText="pick an item" GridPane.columnIndex="2" GridPane.rowIndex="4" />
-                        <Button fx:id="logoutButton" mnemonicParsing="false" onAction="#logoutButtonPressed" text="Logout" GridPane.columnIndex="1" GridPane.rowIndex="7" />
+                        <Button fx:id="logoutButton" mnemonicParsing="false" onAction="#logoutButtonPressed" text="Logout" GridPane.columnIndex="2" GridPane.halignment="RIGHT" />
                         <Label text="Current Leader" textFill="#f8ff00" GridPane.columnIndex="1" GridPane.rowIndex="5" />
                         <TextField fx:id="ownerText" editable="false" promptText="pick an item" GridPane.columnIndex="2" GridPane.rowIndex="5" />
                         <Label text="Bid History" textFill="#f8ff00" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                         <TextArea fx:id="bidHistoryText" editable="false" prefHeight="200.0" prefWidth="200.0" wrapText="true" GridPane.columnIndex="2" GridPane.rowIndex="2" />
                         <ImageView fx:id="imageFrame" fitHeight="200.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="BOTTOM" />
                         <ImageView fx:id="logo" fitHeight="63.0" fitWidth="87.0" pickOnBounds="true" preserveRatio="true" GridPane.halignment="CENTER" GridPane.rowIndex="6" />
+                        <Label text="Buy it now Price" textFill="#f8ff00" GridPane.columnIndex="1" GridPane.rowIndex="7" />
+                        <TextField fx:id="buyItNowText" editable="false" promptText="pick an item" GridPane.columnIndex="2" GridPane.rowIndex="7" />
                      </children>
                   </GridPane>
                </content>
