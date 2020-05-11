@@ -1,12 +1,6 @@
 package final_exam;
 
-import java.util.Scanner;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.net.Socket;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -16,10 +10,7 @@ import javafx.stage.Stage;
 
 public class Client extends Application{
 
-  private static String host = "127.0.0.1";
-  private BufferedReader fromServer;
   public PrintWriter toServer;
-  private Scanner consoleInput = new Scanner(System.in);
   public ClientController controller;
   
   public static void main(String[] args) {
@@ -34,7 +25,6 @@ public class Client extends Application{
 	  primaryStage.setTitle("Login");
 	 
 	  FXMLLoader loader = new FXMLLoader();
-	  Stage loginStage = new Stage();
 	  Parent loginRoot = loader.load(getClass().getResource("login.fxml").openStream());
 	  Scene loginScene = new Scene(loginRoot,500,200);
 	  ((loginController) loader.getController()).setStage(primaryStage, new Scene(root,620,600), loginScene, controller);

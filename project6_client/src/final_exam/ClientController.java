@@ -1,21 +1,12 @@
 package final_exam;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.lang.reflect.Type;
 import java.net.Socket;
-import java.security.InvalidKeyException;
-import java.security.Key;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.util.ArrayList;
-import java.util.Base64;
-
-import javax.crypto.Cipher;
-import javax.crypto.KeyGenerator;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.spec.SecretKeySpec;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -38,6 +29,8 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 
 public class ClientController {
 
@@ -51,7 +44,6 @@ public class ClientController {
     private static String host = "127.0.0.1";
     private BufferedReader fromServer;
     private Customer customer;
-    private Key key;
     public loginController login;
     public Scene loginScene;
     public ArrayList<Item> bought; 
@@ -88,7 +80,6 @@ public class ClientController {
     	names = new ArrayList<String>();
     	bought = new ArrayList<Item>();
     	customer = new Customer();
-    	key = null;
     	boxIndex = -1;
     	AnimationTimer timer = new myTimer();
     	timer.start();
@@ -100,12 +91,13 @@ public class ClientController {
     }
     @FXML
     public void initialize() {
+    	//initialize table of purchased items
     	TableColumn itemName = new TableColumn("Item");
         TableColumn description = new TableColumn("Description");
         TableColumn purchasePrice = new TableColumn("Price");
         itemName.setCellValueFactory(new PropertyValueFactory<Item,String>("name"));
         description.setCellValueFactory(new PropertyValueFactory<Item,String>("description"));
-        description.setMinWidth(200);
+        description.setMinWidth(450);
         purchasePrice.setCellValueFactory(new PropertyValueFactory<Item,Double>("minPrice"));
         buyTable.getColumns().clear();
         buyTable.getColumns().addAll(itemName,description,purchasePrice);
@@ -159,6 +151,10 @@ public class ClientController {
 		try {
 			double bid = Double.parseDouble(bidText.getText());
 			if(bid>items.get(boxIndex).minPrice && items.get(boxIndex).sold == false) {
+				String musicFile = "bidSound.mp3";
+		    	Media sound = new Media(new File(musicFile).toURI().toString());
+		    	MediaPlayer mediaPlayer = new MediaPlayer(sound);
+		    	mediaPlayer.play();
 				items.get(boxIndex).minPrice = bid;
 				items.get(boxIndex).owner = customer;
 				items.get(boxIndex).bidHistory += customer.username + " bids $" + bidText.getText() + "\n";
@@ -168,9 +164,13 @@ public class ClientController {
 				bidText.setPromptText("how much would you like to bid");
 				GsonBuilder builder = new GsonBuilder();
 				Gson gson = builder.create();
-				Message info = new Message("bid",gson.toJson(items.get(boxIndex)),boxIndex);
-				sendToServer(gson.toJson(encrypt(info)));
+				Message info = new Message("bid",gson.toJson(items.get(boxIndex)),boxIndex); //send bid to server to update
+				sendToServer(gson.toJson(info));
 			} else {
+				String musicFile = "errorSound.mp3";
+		    	Media sound = new Media(new File(musicFile).toURI().toString());
+		    	MediaPlayer mediaPlayer = new MediaPlayer(sound);
+		    	mediaPlayer.play();
 				bidText.clear();
 				bidText.setPromptText("too low!");
 			}
@@ -181,13 +181,21 @@ public class ClientController {
 		}
     }
     
-    public void logoutButtonPressed() {
+    public void logoutButtonPressed() {			//return to login window
     	customer = new Customer();
+    	String musicFile = "buttonSound.mp3";     // For example
+    	Media sound = new Media(new File(musicFile).toURI().toString());
+    	MediaPlayer mediaPlayer = new MediaPlayer(sound);
+    	mediaPlayer.play();
     	login.primaryStage.setTitle("Login");
     	login.primaryStage.setScene(login.loginScene);
     }
     
     public void quitButtonPressed() {
+    	String musicFile = "buttonSound.mp3";
+    	Media sound = new Media(new File(musicFile).toURI().toString());
+    	MediaPlayer mediaPlayer = new MediaPlayer(sound);
+    	mediaPlayer.play();
     	System.exit(0);
     }
     
@@ -207,16 +215,9 @@ public class ClientController {
         		try {
         			while ((input = fromServer.readLine()) != null) {
         				Gson gson = new Gson();
-        				Message keyMessage = gson.fromJson(input, Message.class);
-        				if(keyMessage.type.equals("key")) {
-        					// decode the base64 encoded string
-        					byte[] decodedKey = Base64.getDecoder().decode(keyMessage.input);
-        					// rebuild key using SecretKeySpec
-        					key = new SecretKeySpec(decodedKey, 0, decodedKey.length, "AES");
-        				}
-        				Message message = decrypt(gson.fromJson(input, Message.class));
+        				Message message = gson.fromJson(input, Message.class);
         					switch (message.type) {
-        					case "item":
+        					case "item":			//message contains item to update
         						if(items.size()>0) {
         							Item tempy = gson.fromJson(message.input, Item.class);
         							items.set(message.number, tempy);
@@ -229,7 +230,7 @@ public class ClientController {
         							}
         						}
         						break;
-        					case "itemArray":
+        					case "itemArray":		//sends full list of items at start of client creation
         						if(initialized == false) {
         							initialized = true;
         							Type ItemListType = new TypeToken<ArrayList<Item>>(){}.getType(); 
@@ -244,7 +245,7 @@ public class ClientController {
         							});	
         						}
         						break;
-        					case "validUser":
+        					case "validUser":		//username and password are correct or have not been created yet
         						Customer valid = gson.fromJson(message.input, Customer.class);
         						if(customer.username.equals(valid.username) && customer.password.equals(valid.password)) {
         							customer = valid;
@@ -256,18 +257,18 @@ public class ClientController {
         							});
         						}
         						break;
-        					case "invalidUser":
+        					case "invalidUser":		//password incorrect, show alert window
         						Platform.runLater(()->{
         							login.loginInvalid();
         						});
         						break;
-        					case "remove":
+        					case "remove":			//once item auction is over, stop selling it
         						Item remove = gson.fromJson(message.input, Item.class);
         						items.set(message.number,remove);
         						if(remove.owner.username.equals(customer.username)) {
         							customer.itemPurchased(remove);
         							Message purchase = new Message("purchase",gson.toJson(items.get(message.number)),message.number);
-        							sendToServer(gson.toJson(encrypt(purchase)));
+        							sendToServer(gson.toJson(purchase));
         							Platform.runLater(()->{
         								buyTable.setItems(FXCollections.observableArrayList(customer.itemsOwned()));
         							});
@@ -284,9 +285,6 @@ public class ClientController {
             							bidText.setPromptText("Auction over! Winner: " + remove.owner.username);
         							});
         						}
-        						break;
-        					case "key":
-        						key = gson.fromJson(message.input, Key.class);
         						break;
         					}
         					System.out.println("From server: " + input);
@@ -305,37 +303,7 @@ public class ClientController {
     	GsonBuilder builder = new GsonBuilder();
 		Gson gson = builder.create();
 		Message message = new Message("user",gson.toJson(customer),1);
-		sendToServer(gson.toJson(encrypt(message)));
-    }
-    
-    private Message decrypt(Message message) {
-		 try {
-			 Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
-			 cipher.init(Cipher.DECRYPT_MODE, key);
-			 Gson gson = new Gson();
-			 Type ItemListType = new TypeToken<byte[]>(){}.getType(); 
-			 byte[] decipheredText = cipher.doFinal(gson.fromJson(message.input, ItemListType));
-			 return gson.fromJson(new String(decipheredText), Message.class);
-		 } catch (Exception e) {
-			 e.printStackTrace();
-		 }
-		 return null;
-	 }
-    
-    public Message encrypt(Message message) {
-    	try {
-			Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
-			cipher.init(Cipher.ENCRYPT_MODE, key);
-			GsonBuilder builder = new GsonBuilder();
-			Gson gson = builder.create();
-			byte[] input = gson.toJson(message).getBytes();	  
-		    cipher.update(input);
-		    byte[] cipherText = cipher.doFinal();
-		    return new Message("encrypt",gson.toJson(cipherText),1);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-    	return null;
+		sendToServer(gson.toJson(message));
     }
     
     protected void processRequest(String input) {
@@ -347,7 +315,7 @@ public class ClientController {
         toServer.flush();
       }
     
-    private class myTimer extends AnimationTimer {
+    private class myTimer extends AnimationTimer {		//displays and updates remaining time for current item
 		
 		@Override
 		public void handle(long now) {

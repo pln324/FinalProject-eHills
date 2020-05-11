@@ -1,15 +1,14 @@
 package final_exam;
 
-import java.io.IOException;
-
-import com.google.gson.Gson;
+import java.io.File;
 
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import javafx.scene.control.Button;
 import javafx.scene.control.DialogPane;
 import javafx.scene.control.PasswordField;
@@ -45,11 +44,19 @@ public class loginController {
 	}
 	
 	public void quitButtonPressed() {
-    	System.exit(0);
+		String musicFile = "buttonSound.mp3";
+    	Media sound = new Media(new File(musicFile).toURI().toString());
+    	MediaPlayer mediaPlayer = new MediaPlayer(sound);
+    	mediaPlayer.play();
+		System.exit(0);
     }
 	
 	public void loginButtonPressed () {
 		String user = userText.getText();
+		String musicFile = "buttonSound.mp3";
+    	Media sound = new Media(new File(musicFile).toURI().toString());
+    	MediaPlayer mediaPlayer = new MediaPlayer(sound);
+    	mediaPlayer.play();
 		if(user.contains(" ") || user.contentEquals("")) {
 			userText.clear();
 			userText.setPromptText("not a valid username");
@@ -63,6 +70,10 @@ public class loginController {
 	
 	public void loginInvalid() {
 		passText.clear();
+		String musicFile = "errorSound.mp3";
+    	Media sound = new Media(new File(musicFile).toURI().toString());
+    	MediaPlayer mediaPlayer = new MediaPlayer(sound);
+    	mediaPlayer.play();
 		Alert a = new Alert(AlertType.NONE,"incorrect password");
         a.setAlertType(AlertType.WARNING); 
         a.show(); 
