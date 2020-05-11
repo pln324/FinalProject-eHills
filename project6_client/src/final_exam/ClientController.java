@@ -242,11 +242,12 @@ public class ClientController {
         						if(items.size()>0) {
         							Item tempy = gson.fromJson(message.input, Item.class);
         							items.set(message.number, tempy);
-        							items.get(message.number).timer();
+        							//items.get(message.number).timer();
         							if(message.number == boxIndex) {
         								Platform.runLater(()->{
         									lowestBidText.setText(Double.toString(tempy.minPrice));
         									ownerText.setText(tempy.owner.username);
+        									bidHistoryText.setText(tempy.bidHistory);
         								});
         							}
         						}
@@ -259,7 +260,7 @@ public class ClientController {
         							names.clear();
         							for(int i=0; i<items.size(); i++) {
         								names.add(items.get(i).name);
-        								items.get(i).timer();
+        								//items.get(i).timer();
         							}
         							Platform.runLater(()->{
         								itemsBox.setItems(FXCollections.observableArrayList(names));
@@ -340,7 +341,14 @@ public class ClientController {
 		
 		@Override
 		public void handle(long now) {
-			if(boxIndex >= 0 && boxIndex < items.size()) {
+			for(int i=0; i<items.size(); i++) {
+				if(items.get(i).timeRemaining > 0) {
+				long elapsedTime = System.currentTimeMillis() - items.get(i).startTime;
+				long elapsedSeconds = elapsedTime / 1000;
+				items.get(i).timeRemaining = items.get(i).time - elapsedSeconds;
+				}
+			}
+			if(boxIndex<items.size() && boxIndex>=0) {
 				timeText.setText(
 						Long.toString((items.get(boxIndex).timeRemaining)/60) + ":" + 
 						Long.toString(((items.get(boxIndex).timeRemaining)%60)/10) + 
