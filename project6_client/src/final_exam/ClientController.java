@@ -77,6 +77,8 @@ public class ClientController {
     private TextArea bidHistoryText;
     @FXML
     private ImageView imageFrame;
+    @FXML
+    private ImageView logo;
     
     public ClientController() {
     	items = new ArrayList<Item>();
@@ -86,6 +88,7 @@ public class ClientController {
     	bought = new ArrayList<Item>();
     	customer = new Customer();
     	imageFrame = new ImageView();
+    	logo = new ImageView();
     	boxIndex = -1;
     	AnimationTimer timer = new myTimer();
     	timer.start();
@@ -97,14 +100,20 @@ public class ClientController {
     }
     @FXML
     public void initialize() {
+    	File file = new File("ehills.jpeg");
+        Image image = new Image(file.toURI().toString());
+        logo.setImage(image);
+        
     	//initialize table of purchased items
     	TableColumn itemName = new TableColumn("Item");
         TableColumn description = new TableColumn("Description");
         TableColumn purchasePrice = new TableColumn("Price");
         itemName.setCellValueFactory(new PropertyValueFactory<Item,String>("name"));
+        itemName.setMinWidth(75);
         description.setCellValueFactory(new PropertyValueFactory<Item,String>("description"));
         description.setMinWidth(450);
         purchasePrice.setCellValueFactory(new PropertyValueFactory<Item,Double>("minPrice"));
+        purchasePrice.setMinWidth(75);
         buyTable.getColumns().clear();
         buyTable.getColumns().addAll(itemName,description,purchasePrice);
     	
@@ -271,7 +280,7 @@ public class ClientController {
         						break;
         					case "invalidUser":		//password incorrect, show alert window
         						Platform.runLater(()->{
-        							login.loginInvalid();
+        							login.loginInvalid("incorrect password");
         						});
         						break;
         					case "remove":			//once item auction is over, stop selling it

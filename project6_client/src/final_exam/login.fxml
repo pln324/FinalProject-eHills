@@ -8,30 +8,41 @@
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.text.Font?>
 
-<DialogPane fx:id="dp" contentText="Please log in" headerText="Login" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="200.0" prefWidth="500.0" stylesheets="@application.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="final_exam.loginController">
+<DialogPane fx:id="dp" headerText="Login" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="200.0" style="-fx-background-image: url(ehills.jpeg); -fx-border-width: 7; -fx-graphic: url('ehills.jpeg'); -fx-background-color: green; -fx-border-color: lime green; -fx-border-radius: 0; -fx-border-style: dotted;" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="final_exam.loginController">
    <content>
-      <GridPane prefHeight="150.0" prefWidth="500.0">
+      <GridPane minHeight="-Infinity">
         <columnConstraints>
           <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+          <ColumnConstraints hgrow="SOMETIMES" maxWidth="208.79998779296872" minWidth="10.0" prefWidth="208.79998779296872" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="155.20001220703125" minWidth="10.0" prefWidth="111.20001220703125" />
         </columnConstraints>
         <rowConstraints>
-          <RowConstraints maxHeight="55.999987792968746" minHeight="10.0" prefHeight="49.59999389648438" vgrow="SOMETIMES" />
-          <RowConstraints maxHeight="71.20000000000002" minHeight="10.0" prefHeight="47.20001831054688" vgrow="SOMETIMES" />
-          <RowConstraints maxHeight="43.99998168945311" minHeight="0.0" prefHeight="43.99998168945311" vgrow="SOMETIMES" />
+          <RowConstraints maxHeight="78.39999389648438" minHeight="10.0" prefHeight="78.39999389648438" vgrow="SOMETIMES" />
+          <RowConstraints maxHeight="71.20000000000002" minHeight="10.0" prefHeight="49.600006103515625" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
-            <TextField fx:id="userText" promptText="hello" GridPane.columnIndex="1" />
+            <TextField fx:id="userText" promptText="please enter a username" GridPane.columnIndex="1" />
             <PasswordField fx:id="passText" promptText="(Optional)" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-            <Button fx:id="loginButton" mnemonicParsing="false" onAction="#loginButtonPressed" onKeyPressed="#loginButtonPressed" text="Log In" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="2" />
-            <Button fx:id="guestButton" mnemonicParsing="false" text="Login as Guest" GridPane.rowIndex="2" />
+            <Button fx:id="loginButton" mnemonicParsing="false" onAction="#loginButtonPressed" onKeyPressed="#loginButtonPressed" text="Log In" textAlignment="CENTER" GridPane.columnIndex="2" GridPane.halignment="RIGHT" GridPane.rowIndex="1" />
             <Button fx:id="quitButton" mnemonicParsing="false" onAction="#quitButtonPressed" onKeyPressed="#quitButtonPressed" text="Quit" GridPane.columnIndex="2" GridPane.halignment="RIGHT" />
-            <Label text="Username" />
-            <Label text="Password" GridPane.rowIndex="1" />
-            <Button mnemonicParsing="false" text="Create Account" GridPane.columnIndex="2" GridPane.halignment="RIGHT" GridPane.rowIndex="2" />
+            <Label text="Username" textFill="#f8ff00">
+               <font>
+                  <Font size="18.0" />
+               </font></Label>
+            <Label text="Password" textFill="#f8ff00" GridPane.rowIndex="1">
+               <font>
+                  <Font size="18.0" />
+               </font></Label>
          </children>
       </GridPane>
    </content>
+   <header>
+      <Label alignment="CENTER" text="Welcome to eHills!" textAlignment="CENTER" textFill="#f8ff00">
+         <font>
+            <Font name="Lucida Bright" size="24.0" />
+         </font>
+      </Label>
+   </header>
 </DialogPane>

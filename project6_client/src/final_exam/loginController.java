@@ -56,25 +56,24 @@ public class loginController {
 		String musicFile = "buttonSound.mp3";
     	Media sound = new Media(new File(musicFile).toURI().toString());
     	MediaPlayer mediaPlayer = new MediaPlayer(sound);
-    	mediaPlayer.play();
 		if(user.contains(" ") || user.contentEquals("")) {
-			userText.clear();
-			userText.setPromptText("not a valid username");
+			loginInvalid("not a valid username");
 			return;
 		}
+		mediaPlayer.play();
 		Customer customer = new Customer(user,passText.getText());
 		userText.clear();
 		passText.clear();
 		controller.sendToServer(customer);
 	}
 	
-	public void loginInvalid() {
+	public void loginInvalid(String error) {
 		passText.clear();
 		String musicFile = "errorSound.mp3";
     	Media sound = new Media(new File(musicFile).toURI().toString());
     	MediaPlayer mediaPlayer = new MediaPlayer(sound);
     	mediaPlayer.play();
-		Alert a = new Alert(AlertType.NONE,"incorrect password");
+		Alert a = new Alert(AlertType.NONE,error);
         a.setAlertType(AlertType.WARNING); 
         a.show(); 
 	}
