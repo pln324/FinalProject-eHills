@@ -90,7 +90,7 @@ public class ClientController {
     	customer = new Customer();
     	imageFrame = new ImageView();
     	logo = new ImageView();
-    	clientID = 0;
+    	clientID = -1;
     	boxIndex = -1;
     	AnimationTimer timer = new myTimer();
     	timer.start();
@@ -166,10 +166,16 @@ public class ClientController {
 		try {
 			double bid = Double.parseDouble(bidText.getText());
 			if(bid>items.get(boxIndex).minPrice && items.get(boxIndex).sold == false) {
-				String musicFile = "bidSound.mp3";
-		    	Media sound = new Media(new File(musicFile).toURI().toString());
-		    	MediaPlayer mediaPlayer = new MediaPlayer(sound);
-		    	mediaPlayer.play();
+				Platform.runLater(()->{
+					String musicFile = "bidSound.mp3";
+			    	Media sound = new Media(new File(musicFile).toURI().toString());
+			    	MediaPlayer mediaPlayer = new MediaPlayer(sound);
+			    	mediaPlayer.play();
+				});
+//				String musicFile = "bidSound.mp3";
+//		    	Media sound = new Media(new File(musicFile).toURI().toString());
+//		    	MediaPlayer mediaPlayer = new MediaPlayer(sound);
+//		    	mediaPlayer.play();
 				items.get(boxIndex).minPrice = bid;
 				items.get(boxIndex).owner = customer;
 				items.get(boxIndex).bidHistory += customer.username + " bids $" + bidText.getText() + "\n";
@@ -182,10 +188,12 @@ public class ClientController {
 				Message info = new Message("bid",gson.toJson(items.get(boxIndex)),boxIndex); //send bid to server to update
 				sendToServer(gson.toJson(info));
 			} else {
-				String musicFile = "errorSound.mp3";
-		    	Media sound = new Media(new File(musicFile).toURI().toString());
-		    	MediaPlayer mediaPlayer = new MediaPlayer(sound);
-		    	mediaPlayer.play();
+				Platform.runLater(()->{
+					String musicFile = "errorSound.mp3";
+			    	Media sound = new Media(new File(musicFile).toURI().toString());
+			    	MediaPlayer mediaPlayer = new MediaPlayer(sound);
+			    	mediaPlayer.play();
+				});
 				bidText.clear();
 				bidText.setPromptText("too low!");
 			}
@@ -198,10 +206,12 @@ public class ClientController {
     
     public void logoutButtonPressed() {			//return to login window
     	customer = new Customer();
-    	String musicFile = "buttonSound.mp3";
-    	Media sound = new Media(new File(musicFile).toURI().toString());
-    	MediaPlayer mediaPlayer = new MediaPlayer(sound);
-    	mediaPlayer.play();
+    	Platform.runLater(()->{
+    		String musicFile = "buttonSound.mp3";
+        	Media sound = new Media(new File(musicFile).toURI().toString());
+        	MediaPlayer mediaPlayer = new MediaPlayer(sound);
+        	mediaPlayer.play();
+    	});
     	login.primaryStage.setTitle("Login");
     	login.primaryStage.setScene(login.loginScene);
     }
@@ -282,7 +292,7 @@ public class ClientController {
         					case "remove":			//once item auction is over, stop selling it
         						Item remove = gson.fromJson(message.input, Item.class);
         						items.set(message.number,remove);
-        						if(remove.owner.username.equals(customer.username)) {
+        						if(remove.owner.username.equals(customer.username) && !customer.username.contentEquals("")) {
         							customer.itemPurchased(remove);
         							Message purchase = new Message("purchase",gson.toJson(items.get(message.number)),message.number);
         							sendToServer(gson.toJson(purchase));

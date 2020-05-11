@@ -27,11 +27,11 @@
             <PasswordField fx:id="passText" promptText="(Optional)" GridPane.columnIndex="1" GridPane.rowIndex="1" />
             <Button fx:id="loginButton" mnemonicParsing="false" onAction="#loginButtonPressed" onKeyPressed="#loginButtonPressed" text="Log In" textAlignment="CENTER" GridPane.columnIndex="2" GridPane.halignment="RIGHT" GridPane.rowIndex="1" />
             <Button fx:id="quitButton" mnemonicParsing="false" onAction="#quitButtonPressed" onKeyPressed="#quitButtonPressed" text="Quit" GridPane.columnIndex="2" GridPane.halignment="RIGHT" />
-            <Label text="Username" textFill="#f8ff00">
+            <Label text="Username" textFill="#005609">
                <font>
                   <Font size="18.0" />
                </font></Label>
-            <Label text="Password" textFill="#f8ff00" GridPane.rowIndex="1">
+            <Label text="Password" textFill="#005609" GridPane.rowIndex="1">
                <font>
                   <Font size="18.0" />
                </font></Label>
@@ -39,7 +39,7 @@
       </GridPane>
    </content>
    <header>
-      <Label alignment="CENTER" text="Welcome to eHills!" textAlignment="CENTER" textFill="#f8ff00">
+      <Label alignment="CENTER" text="Welcome to eHills!" textAlignment="CENTER" textFill="#005609">
          <font>
             <Font name="Lucida Bright" size="24.0" />
          </font>
