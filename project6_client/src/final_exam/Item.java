@@ -7,7 +7,9 @@ public class Item {
 	public int time;
 	public Customer owner;
 	public long timeRemaining;
+	public boolean sold;
 	private long startTime;
+	public String bidHistory;
 	
 	public Item() {
 		name = "";
@@ -15,6 +17,7 @@ public class Item {
 		minPrice = 0;
 		time = 0;
 		timeRemaining = 0;
+		sold = true;
 		owner = new Customer();
 	}
 	
@@ -24,7 +27,9 @@ public class Item {
 		this.minPrice = minPrice;
 		this.time = time;
 		timeRemaining = time;
+		sold = false;
 		owner = new Customer();
+		bidHistory = "Item Listed\n";
 		startTime = System.currentTimeMillis() - startTime;
 		timer();
 	}

@@ -69,6 +69,8 @@ public class ClientController {
     private TextField ownerText;
     @FXML
     private TableView<Item> buyTable;
+    @FXML
+    private TextArea bidHistoryText;
     
     public ClientController() {
     	items = new ArrayList<Item>();
@@ -111,9 +113,20 @@ public class ClientController {
             		descriptionText.setText(temp.description);
             		timeText.setText(Long.toString(temp.timeRemaining));
             		lowestBidText.setText(Double.toString(temp.minPrice));
+            		bidHistoryText.setText(temp.bidHistory);
+            		bidText.setEditable(true);
+					bidButton.setDisable(false);
+					bidText.setPromptText("how much would you like to bid");
             		if(temp.owner.username.equals("")) {
             			ownerText.clear();
             			ownerText.setPromptText("Be the first to bid!");
+            		}
+            		if(temp.sold == true) {
+            			bidText.setEditable(false);
+						bidButton.setDisable(true);
+						bidText.clear();
+						bidText.setPromptText("Auction over! Winner: " + temp.owner.username);
+						ownerText.setText(temp.owner.username);
             		}
             		else ownerText.setText(temp.owner.username);
             	} catch (Exception e) {
@@ -134,17 +147,22 @@ public class ClientController {
     	bidText.setPromptText("How much?");
 		try {
 			double bid = Double.parseDouble(bidText.getText());
-			if(bid>items.get(boxIndex).minPrice) {
+			if(bid>items.get(boxIndex).minPrice && items.get(boxIndex).sold == false) {
 				items.get(boxIndex).minPrice = bid;
 				items.get(boxIndex).owner = customer;
+				items.get(boxIndex).bidHistory += customer.username + " bids $" + bidText.getText() + "\n";
 				lowestBidText.setText(bidText.getText());
 				ownerText.setText(customer.username);
+				bidHistoryText.setText(items.get(boxIndex).bidHistory);
 				bidText.setPromptText("how much would you like to bid");
 				GsonBuilder builder = new GsonBuilder();
 				Gson gson = builder.create();
 				Message info = new Message("bid",gson.toJson(items.get(boxIndex)),boxIndex);
 				sendToServer(gson.toJson(info));
-			} else {
+			} else if (items.get(boxIndex).sold == true) {
+				
+			}
+			else {
 				bidText.clear();
 				bidText.setPromptText("too low!");
 			}
@@ -158,7 +176,7 @@ public class ClientController {
     public void logoutButtonPressed() {
     	customer = new Customer();
     	login.primaryStage.setTitle("Login");
-    	login.primaryStage.setScene(loginScene);
+    	login.primaryStage.setScene(login.loginScene);
     }
     
     public void quitButtonPressed() {
@@ -182,30 +200,18 @@ public class ClientController {
         			while ((input = fromServer.readLine()) != null) {
         				Gson gson = new Gson();
         				Message message = gson.fromJson(input, Message.class);
-        					String temp = "";
         					switch (message.type) {
-        					case "upper":
-        						temp = message.input.toUpperCase();
-        						break;
-        					case "lower":
-        						temp = message.input.toLowerCase();
-        						break;
-        					case "strip":
-        						temp = message.input.replace(" ", "");
-        						break;
         					case "item":
         						if(items.size()>0) {
-        						Item tempy = gson.fromJson(message.input, Item.class);
-        						items.get(message.number).minPrice = tempy.minPrice;
-        						items.get(message.number).owner = tempy.owner;
-        						items.get(message.number).timeRemaining = tempy.timeRemaining;
-        						if(message.number == boxIndex) {
-        							Platform.runLater(()->{
-        								lowestBidText.setText(Double.toString(tempy.minPrice));
-        								ownerText.setText(tempy.owner.username);
-        							});
-        							//timeText.setText(Long.toString(tempy.timeRemaining));
-        						}
+        							Item tempy = gson.fromJson(message.input, Item.class);
+        							items.set(message.number, tempy);
+        							items.get(message.number).timer();
+        							if(message.number == boxIndex) {
+        								Platform.runLater(()->{
+        									lowestBidText.setText(Double.toString(tempy.minPrice));
+        									ownerText.setText(tempy.owner.username);
+        								});
+        							}
         						}
         						break;
         					case "itemArray":
@@ -244,6 +250,9 @@ public class ClientController {
         						});
         					case "remove":
         						Item remove = gson.fromJson(message.input, Item.class);
+        						items.get(message.number).sold = true;
+        						items.get(message.number).bidHistory += items.get(message.number).owner.username + 
+        								" won the auction with a bid of " + Double.toString(items.get(message.number).minPrice);
         						if(remove.owner.username.equals(customer.username)) {
         							customer.itemPurchased(remove);
         							Message purchase = new Message("purchase",gson.toJson(customer),1);
@@ -252,17 +261,26 @@ public class ClientController {
         								buyTable.setItems(FXCollections.observableArrayList(customer.itemsOwned()));
         							});
         						}
-        						if(message.number>items.size()) {
-        							names.remove(message.number-1);
-        							items.remove(message.number-1);
+        						if(boxIndex == message.number) {
+        							Platform.runLater(()->{
+        								bidHistoryText.setText(items.get(message.number).bidHistory);
+        								bidText.clear();
+        								bidText.setEditable(false);
+            							bidButton.setDisable(true);
+            							bidText.setPromptText("Auction over! Winner: " + remove.owner.username);
+        							});
         						}
-        						else {
-        							names.remove(message.number);
-        							items.remove(message.number);
-        						}
-        						Platform.runLater(()->{
-        							itemsBox.getItems().remove(message.number);
-    							});	
+//        						if(message.number>items.size()) {
+//        							names.remove(message.number-1);
+//        							items.remove(message.number-1);
+//        						}
+//        						else {
+//        							names.remove(message.number);
+//        							items.remove(message.number);
+//        						}
+//        						Platform.runLater(()->{
+//        							itemsBox.getItems().remove(message.number);
+//    							});	
         						break;
         					}
         					System.out.println("From server: " + input);

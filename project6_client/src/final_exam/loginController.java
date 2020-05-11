@@ -31,13 +31,15 @@ public class loginController {
     
 	public Stage primaryStage;
 	public Scene primaryScene;
+	public Scene loginScene;
 	public ClientController controller;
 	public Parent root;
 	volatile static int currentID;
 	
-	public void setStage(Stage stage, Scene scene, ClientController controller){
+	public void setStage(Stage stage, Scene scene, Scene loginScene, ClientController controller){
 		primaryStage=stage;
 		primaryScene=scene;
+		this.loginScene = loginScene;
 		this.controller = controller;
 		controller.login = this;
 	}
@@ -53,6 +55,8 @@ public class loginController {
 			currentID++;
 		}
 		Customer customer = new Customer(user,passText.getText());
+		userText.clear();
+		passText.clear();
 		controller.sendToServer(customer);
 	}
 	

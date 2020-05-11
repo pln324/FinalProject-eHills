@@ -20,16 +20,10 @@ class Server extends Observable {
 
 	static ArrayList<Item> items;
 	static Map <String,Customer> users;
-	private static long startTime;
 	
 	public static void main(String[] args) throws FileNotFoundException{
 		users = new HashMap<String,Customer>();
 		items = new ArrayList<Item>();
-//		for(int i=0; i<5; i++) {
-//			Item i1 = new Item("item" + Integer.toString(i),"an item",250,100);
-//			items.add(i1);
-//		}
-//		items.add(new Item("me", "its literally me",1,75));
 		parseArgs(args);
 		new Server().runServer();
 	}
@@ -57,7 +51,6 @@ class Server extends Observable {
 	private void setUpNetworking() throws Exception {
 		@SuppressWarnings("resource")
 		ServerSocket serverSock = new ServerSocket(4242);
-		startTime = System.currentTimeMillis();
 		
 		while (true) {
 			Socket clientSocket = serverSock.accept();
@@ -70,7 +63,8 @@ class Server extends Observable {
 					int i=0;
 					for (Iterator<Item> it = items.iterator(); it.hasNext(); i++) {
 					    Item remove = it.next();
-					    if (remove.timeRemaining == 0) { 
+					    if (remove.timeRemaining == 0 && remove.sold == false) { 
+					    	remove.sold = true;
 					    	GsonBuilder builder = new GsonBuilder();
 							Gson gson = builder.create();
 							if(users.containsKey(remove.owner.username)) {
@@ -79,7 +73,6 @@ class Server extends Observable {
 							Message message = new Message("remove",gson.toJson(remove),i);
 							this.setChanged();
 							this.notifyObservers(gson.toJson(message));
-					    	it.remove(); 
 					    	break;
 						} 
 					} 
@@ -129,8 +122,10 @@ class Server extends Observable {
 //				Type ItemListType = new TypeToken<ArrayList<Item>>(){}.getType(); 
 //				items = gson.fromJson(message.input, ItemListType);
 				Item tempy = gson.fromJson(message.input, Item.class);
-				items.get(message.number).minPrice = tempy.minPrice;
-				items.get(message.number).owner = tempy.owner;
+				//items.get(message.number).minPrice = tempy.minPrice;
+				//items.get(message.number).owner = tempy.owner;
+				items.set(message.number, tempy);
+				items.get(message.number).timer();
 				//items.get(message.number).timeRemaining = tempy.timeRemaining;
 				item = new Message("item",gson.toJson(items.get(message.number)),message.number);
 				this.setChanged();
