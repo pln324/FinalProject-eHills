@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
 
-<DialogPane fx:id="dp" contentText="Please log in" headerText="Login" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="200.0" prefWidth="500.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="final_exam.loginController">
+<DialogPane fx:id="dp" contentText="Please log in" headerText="Login" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="200.0" prefWidth="500.0" stylesheets="@application.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="final_exam.loginController">
    <content>
       <GridPane prefHeight="150.0" prefWidth="500.0">
         <columnConstraints>
@@ -23,7 +23,7 @@
           <RowConstraints maxHeight="43.99998168945311" minHeight="0.0" prefHeight="43.99998168945311" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
-            <TextField fx:id="userText" promptText="Enter a username" GridPane.columnIndex="1" />
+            <TextField fx:id="userText" promptText="hello" GridPane.columnIndex="1" />
             <PasswordField fx:id="passText" promptText="(Optional)" GridPane.columnIndex="1" GridPane.rowIndex="1" />
             <Button fx:id="loginButton" mnemonicParsing="false" onAction="#loginButtonPressed" onKeyPressed="#loginButtonPressed" text="Log In" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="2" />
             <Button fx:id="guestButton" mnemonicParsing="false" text="Login as Guest" GridPane.rowIndex="2" />

@@ -2,6 +2,7 @@ package final_exam;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.lang.reflect.Type;
@@ -29,6 +30,8 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 
@@ -72,6 +75,8 @@ public class ClientController {
     private TableView<Item> buyTable;
     @FXML
     private TextArea bidHistoryText;
+    @FXML
+    private ImageView imageFrame;
     
     public ClientController() {
     	items = new ArrayList<Item>();
@@ -80,6 +85,7 @@ public class ClientController {
     	names = new ArrayList<String>();
     	bought = new ArrayList<Item>();
     	customer = new Customer();
+    	imageFrame = new ImageView();
     	boxIndex = -1;
     	AnimationTimer timer = new myTimer();
     	timer.start();
@@ -119,6 +125,11 @@ public class ClientController {
             		bidText.setEditable(true);
 					bidButton.setDisable(false);
 					bidText.setPromptText("how much would you like to bid");
+					
+					File file = new File(temp.image);
+			        Image image = new Image(file.toURI().toString());
+			        imageFrame.setImage(image);
+					
             		if(temp.owner.username.equals("")) {
             			ownerText.clear();
             			ownerText.setPromptText("Be the first to bid!");
@@ -133,14 +144,15 @@ public class ClientController {
             		}
             		else ownerText.setText(temp.owner.username);
             	} catch (Exception e) {
-            		descriptionText.clear();
-            		timeText.clear();
-            		lowestBidText.clear();
-            		ownerText.clear();
-            		bidText.clear();
-            		Alert a = new Alert(AlertType.NONE,"auction over!");
-                    a.setAlertType(AlertType.WARNING); 
-                    a.show(); 
+            		e.printStackTrace();
+//            		descriptionText.clear();
+//            		timeText.clear();
+//            		lowestBidText.clear();
+//            		ownerText.clear();
+//            		bidText.clear();
+//            		Alert a = new Alert(AlertType.NONE,"auction over!");
+//                    a.setAlertType(AlertType.WARNING); 
+//                    a.show(); 
             	}
             } 
         }); 
@@ -251,7 +263,7 @@ public class ClientController {
         							customer = valid;
         							Platform.runLater(()->{
         								loginScene = login.primaryStage.getScene();
-        								login.primaryStage.setTitle("Welcome, " + customer.username);
+        								login.primaryStage.setTitle("Welcome, " + customer.username + "!");
         								login.primaryStage.setScene(login.primaryScene);
         								buyTable.setItems(FXCollections.observableArrayList(customer.itemsOwned()));
         							});

@@ -31,7 +31,7 @@ class Server extends Observable {
 		 String[] line = {};
 	        while(sc.hasNextLine()) {// each line is an item, each aspect is separated by commas;
 	        	line = sc.nextLine().split(";");
-	        	items.add(new Item(line[0],line[1],Double.parseDouble(line[2]),Integer.parseInt(line[3])));
+	        	items.add(new Item(line[0],line[1],Double.parseDouble(line[2]),Integer.parseInt(line[3]),line[4]));
 	        }
 	        sc.close();
 	}
